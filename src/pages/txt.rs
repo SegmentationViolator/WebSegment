@@ -30,6 +30,6 @@ pub fn txt(name: &str) -> Html {
     };
 
     html! {
-        <Paragraph>{text}</Paragraph>
+        <Paragraph><pre>{text}</pre></Paragraph>
     }
 }
