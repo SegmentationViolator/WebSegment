@@ -23,6 +23,7 @@
     #{&}-link {
         color: #2832c2;
         margin-bottom: 1.5em;
+        overflow-wrap: break-word;
 
         @media (prefers-color-scheme: dark) {
             color: #82eefd;
