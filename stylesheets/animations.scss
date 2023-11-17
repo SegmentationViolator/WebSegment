@@ -1,0 +1,53 @@
+.fade {
+    animation: Fade 1s;
+}
+
+.fade-again {
+    animation: FadeAgain 1s;
+}
+
+@keyframes Fade {
+    0% {
+        opacity: 0%
+    }
+    100% {
+        opacity: 100%;
+    }
+}
+
+@keyframes FadeAgain {
+    0% {
+        opacity: 0%
+    }
+    100% {
+        opacity: 100%;
+    }
+}
+
+#splash {
+    align-items: center;
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+
+    #{&}-inner {
+        animation: Splash 0.7s linear normal;
+        display: inline-block;
+        height: 10em;
+        width: 10em;
+    }
+}
+
+@keyframes Splash {
+    0% {
+        opacity: 0%;
+        transform: translateX(-5vw);
+    }
+    50% {
+        opacity: 100%;
+        transform: translateX(-1.25vw);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}

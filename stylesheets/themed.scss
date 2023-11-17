@@ -1,0 +1,16 @@
+@mixin themed($primary: #111, $secondary: #fff) {
+    background: $secondary;
+    color: $primary;
+
+    a {
+        color: $primary;
+
+        &:hover {
+            color: change-color($color: $primary, $lightness: 45%,);
+        }
+    }
+
+    span {
+        background: $secondary;
+    }
+}

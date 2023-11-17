@@ -1,0 +1,25 @@
+.nav-bar {
+    align-items: center;
+    border-bottom: 0.2em solid;
+    display: flex;
+    justify-content: space-between;
+    padding: 1em;
+
+    &.segmented {
+        border-bottom: 0.2em dashed
+    }
+}
+
+.nav-link {
+    font-weight: 700;
+    text-decoration-line: none;
+}
+
+.nav-links {
+    list-style-type: none;
+
+    li {
+        float: left;
+        padding-right: 1em;
+    }
+}

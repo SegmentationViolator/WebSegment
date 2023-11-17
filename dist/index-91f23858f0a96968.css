@@ -1,0 +1,212 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Noto+Sans+Mono&display=swap");
+.fade {
+  animation: Fade 1s;
+}
+
+.fade-again {
+  animation: FadeAgain 1s;
+}
+
+@keyframes Fade {
+  0% {
+    opacity: 0%;
+  }
+  100% {
+    opacity: 100%;
+  }
+}
+@keyframes FadeAgain {
+  0% {
+    opacity: 0%;
+  }
+  100% {
+    opacity: 100%;
+  }
+}
+#splash {
+  align-items: center;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+}
+#splash #splash-inner {
+  animation: Splash 0.7s linear normal;
+  display: inline-block;
+  height: 10em;
+  width: 10em;
+}
+
+@keyframes Splash {
+  0% {
+    opacity: 0%;
+    transform: translateX(-5vw);
+  }
+  50% {
+    opacity: 100%;
+    transform: translateX(-1.25vw);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.card {
+  background: #e8e8e8;
+  color: #111;
+  display: flex;
+  flex-direction: column;
+  padding: 2em;
+}
+.card a {
+  color: #111;
+}
+.card a:hover {
+  color: #737373;
+}
+.card span {
+  background: #e8e8e8;
+}
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: #232323;
+    color: #fff;
+  }
+  .card a {
+    color: #fff;
+  }
+  .card a:hover {
+    color: #737373;
+  }
+  .card span {
+    background: #232323;
+  }
+}
+.card .card-title {
+  margin-bottom: 1.5em;
+}
+.card .card-link {
+  color: #2832c2;
+  margin-bottom: 1.5em;
+}
+@media (prefers-color-scheme: dark) {
+  .card .card-link {
+    color: #82eefd;
+  }
+}
+.card .card-image {
+  max-width: 50vw;
+}
+
+.card-grid {
+  display: grid;
+  gap: 1em;
+  grid-template-columns: repeat(auto-fit, minmax(256px, 1fr));
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  padding: 0.5em;
+}
+.footer img {
+  bottom: -0.75em;
+  padding-left: 5px;
+  position: relative;
+  width: 2em;
+}
+
+.nav-bar {
+  align-items: center;
+  border-bottom: 0.2em solid;
+  display: flex;
+  justify-content: space-between;
+  padding: 1em;
+}
+.nav-bar.segmented {
+  border-bottom: 0.2em dashed;
+}
+
+.nav-link {
+  font-weight: 700;
+  text-decoration-line: none;
+}
+
+.nav-links {
+  list-style-type: none;
+}
+.nav-links li {
+  float: left;
+  padding-right: 1em;
+}
+
+.paragraph {
+  font-family: "Noto Sans Mono", monospace;
+}
+.paragraph * {
+  display: inline;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  background: #fff;
+  color: #111;
+  font-family: "IBM Plex Mono", monospace;
+}
+html a {
+  color: #111;
+}
+html a:hover {
+  color: #737373;
+}
+html span {
+  background: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  html {
+    background: #111;
+    color: #fff;
+  }
+  html a {
+    color: #fff;
+  }
+  html a:hover {
+    color: #737373;
+  }
+  html span {
+    background: #111;
+  }
+}
+
+p {
+  font-size: min(1em, 1.6vmax);
+  hyphens: auto;
+  line-break: loose;
+}
+
+sup a {
+  text-decoration-line: none;
+}
+
+#App {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  margin: 1em;
+  flex-grow: 1;
+}
+
+.not-found {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+}
+.not-found h1 {
+  font-size: 10em;
+}

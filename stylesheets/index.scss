@@ -1,0 +1,56 @@
+@use "animations";
+@use "card";
+@use "card-grid";
+@use "footer";
+@use "navigation_bar";
+@use "paragraph";
+@use "themed";
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Noto+Sans+Mono&display=swap');
+
+
+* {
+    margin: 0
+}
+
+html {
+    @include themed.themed;
+    font-family: 'IBM Plex Mono', monospace;
+
+    @media (prefers-color-scheme: dark) {
+        @include themed.themed(#fff, #111);
+    }
+}
+
+p {
+    font-size: min(1em, 1.6vmax);
+    hyphens: auto;
+    line-break: loose;
+}
+
+sup a {
+    text-decoration-line: none;
+}
+
+#App {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.body {
+    margin: 1em;
+    flex-grow: 1;
+}
+
+.not-found {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+
+    h1 {
+        font-size: 10em;
+    }
+}
