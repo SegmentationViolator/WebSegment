@@ -22,7 +22,7 @@ pub fn footer() -> Html {
         <div class="footer">
             <p>
                 <a href="https://www.rust-lang.org/">{"Made with Crab Lang"} <img src="/crab.webp"/></a>
-                <sup><a href="https://github.com/SegmentationViolator/web-segment">{"[source]"}</a></sup>
+                <sup><a href="/projects">{"[source]"}</a></sup>
             </p>
         </div>
     }

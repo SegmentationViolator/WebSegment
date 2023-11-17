@@ -20,7 +20,8 @@ use crate::card::{self, Card};
 
 const URLS: &[(&str, &str)] = &[
     ("Ruschip", "https://github.com/SegmentationViolator/Ruschip"),
-    ("BatCon", "https://github.com/SegmentationViolator/BatCon")
+    ("BatCon", "https://github.com/SegmentationViolator/BatCon"),
+    ("WebSegment", "https://github.com/SegmentationViolator/WebSegment")
 ];
 
 pub enum FetchState {
