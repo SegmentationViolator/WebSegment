@@ -39,6 +39,8 @@ enum Route {
     NotFound,
     #[at("/projects")]
     Projects,
+    #[at("/txt/:name")]
+    Text { name: String }
 }
 
 impl Route {
@@ -76,7 +78,7 @@ fn app() -> Html {
 
     yew::html! {
         <div id="splash">
-            <img src="logo.svg" id="splash-inner"/>
+            <img src="/logo.svg" id="splash-inner"/>
         </div>
     }
 }
@@ -95,6 +97,7 @@ fn switch(route: Route) -> Html {
         Route::Links => pages::links(),
         Route::NotFound => pages::not_found(),
         Route::Projects => pages::projects(),
+        Route::Text { name } => pages::txt(&name),
     }
 }
 

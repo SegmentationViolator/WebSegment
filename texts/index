@@ -1,0 +1,4 @@
+&[
+    // example
+    // ("stuff", include_str!("stuff.txt"))
+]
