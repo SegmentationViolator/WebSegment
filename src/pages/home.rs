@@ -22,7 +22,7 @@ use crate::{paragraph::Paragraph, Route};
 pub fn home() -> Html {
     html! {
         <>
-            <h4>{"I am,"}</h4><br/>
+            <p>{"I am,"}</p><br/>
 
             <h3>{"Segmentation Violator"}</h3><br/>
 

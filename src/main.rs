@@ -39,8 +39,8 @@ enum Route {
     NotFound,
     #[at("/projects")]
     Projects,
-    #[at("/txt/:name")]
-    Text { name: String }
+    #[at("/txt/:filename")]
+    Text { filename: String },
 }
 
 impl Route {
@@ -68,7 +68,7 @@ fn app() -> Html {
                     <Footer />
                 </BrowserRouter>
             </div>
-        }
+        };
     }
 
     let timeout = gloo_timers::callback::Timeout::new(800, move || {
@@ -97,7 +97,7 @@ fn switch(route: Route) -> Html {
         Route::Links => pages::links(),
         Route::NotFound => pages::not_found(),
         Route::Projects => pages::projects(),
-        Route::Text { name } => pages::txt(&name),
+        Route::Text { filename } => pages::text(filename),
     }
 }
 

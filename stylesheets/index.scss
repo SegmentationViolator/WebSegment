@@ -23,7 +23,7 @@ html {
 }
 
 p {
-    font-size: min(1em, 1.6vmax);
+    font-size: max(1em, 1vmax);
     hyphens: auto;
     line-break: loose;
 }
@@ -53,4 +53,8 @@ sup a {
     h1 {
         font-size: 10em;
     }
+}
+
+.text {
+    white-space: pre-wrap;
 }
