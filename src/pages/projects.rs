@@ -73,7 +73,9 @@ impl Component for Projects {
                             "https://corsproxy.io/?{url}", 
                         );
 
-                        let response = match client.get(proxied_url).send().await {
+                        let response = match client.get(proxied_url).send().await
+                            .and_then(|response| response.error_for_status())
+                        {
                             Err(error) => {
                                 return Message::SetState(FetchState::Failed(
                                     error.without_url().to_string(),
@@ -81,16 +83,6 @@ impl Component for Projects {
                             }
                             Ok(response) => response,
                         };
-                        let status = response.status();
-
-                        if !status.is_success() {
-                            return Message::SetState(FetchState::Failed(format!(
-                                "{} returned status code {}. {}",
-                                response.url(),
-                                status.as_u16(),
-                                status.canonical_reason().unwrap_or("")
-                            )));
-                        }
 
                         let response = match response.text().await {
                             Err(error) => {

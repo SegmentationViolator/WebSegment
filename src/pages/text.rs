@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use reqwest;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -35,7 +34,7 @@ pub enum Message {
 
 #[derive(PartialEq, Properties)]
 pub struct Props {
-    filename: String
+    filename: String,
 }
 
 pub struct Text {
@@ -58,21 +57,48 @@ impl Component for Text {
                 ctx.link().send_future(async move {
                     let base = web_sys::window().unwrap().location().origin().unwrap();
 
-                    let text = match reqwest::get(format!("{base}/texts/{filename}")).await
+                    let texts: Vec<String> = match reqwest::get(format!("{base}/texts/index.list"))
+                        .await
                         .and_then(|response| response.error_for_status())
                     {
                         Err(error) => {
-                            if matches!(error.status(), Some(reqwest::StatusCode::NOT_FOUND)) {
-                                return Message::SetState(FetchState::NotFound);
+                            return Message::SetState(FetchState::Failed(format!(
+                                "Couldn't fetch index.list, {error}"
+                            )));
+                        }
+                        Ok(response) => {
+                            let json = response
+                                .text()
+                                .await
+                                .map_err(|error| error.to_string())
+                                .and_then(|text| {
+                                    serde_json::from_str(&text)
+                                        .map_err(|_| "Invalid index.list file".to_string())
+                                });
+
+                            if json.is_err() {
+                                return Message::SetState(FetchState::Failed(json.unwrap_err()));
                             }
 
+                            json.unwrap()
+                        }
+                    };
+
+                    if !texts.contains(&filename) {
+                        return Message::SetState(FetchState::NotFound);
+                    }
+
+                    let text = match reqwest::get(format!("{base}/texts/{filename}")).await {
+                        Err(error) => {
                             return Message::SetState(FetchState::Failed(error.to_string()));
                         }
                         Ok(response) => {
                             let text = response.text().await;
 
                             if text.is_err() {
-                                return Message::SetState(FetchState::Failed(text.unwrap_err().to_string()));
+                                return Message::SetState(FetchState::Failed(
+                                    text.unwrap_err().to_string(),
+                                ));
                             }
 
                             text.unwrap()
@@ -100,12 +126,11 @@ impl Component for Text {
             }
             FetchState::Fetching => html!( <p class={classes!("status")}>{"Fetching..."}</p> ),
             FetchState::NotFetching => {
-                ctx.link().send_message(Message::FetchData(ctx.props().filename.clone()));
+                ctx.link()
+                    .send_message(Message::FetchData(ctx.props().filename.clone()));
                 html!(<></>)
             }
-            FetchState::NotFound => {
-                return html!( <Redirect<Route> to={Route::NotFound} /> )
-            }
+            FetchState::NotFound => return html!( <Redirect<Route> to={Route::NotFound} /> ),
             FetchState::Success(text) => {
                 html! {
                     <>
