@@ -107,7 +107,21 @@ impl Component for Text {
                 return html!( <Redirect<Route> to={Route::NotFound} /> )
             }
             FetchState::Success(text) => {
-                html!(<p class={classes!("text")}>{text}</p>)
+                html! {
+                    <>
+                        <h4>
+                            <a style="float: right"
+                                href={
+                                    format!("/texts/{}", ctx.props().filename)
+                                }
+                            >{"View Raw"}</a>
+                        </h4>
+                        <br/>
+                        <br/>
+
+                        <p class={classes!("text")}>{text}</p>
+                    </>
+                }
             }
         }
     }

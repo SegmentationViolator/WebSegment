@@ -61,7 +61,7 @@ fn app() -> Html {
         return yew::html! {
             <div id="App">
                 <BrowserRouter>
-                    <NavigationBar /><br/>
+                    <NavigationBar />
                     <div class="body">
                         <Switch<Route> render={switch} />
                     </div>
