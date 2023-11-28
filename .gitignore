@@ -1,4 +1,5 @@
 /assets
-/target
+/build.sh
 /dist
-build.sh
+/target
+/web-segment
