@@ -29,7 +29,7 @@ pub fn navigation_bar() -> Html {
         Callback::from(move |_| segmented.set(true))
     };
 
-    let pages = if current_route == Route::NotFound {
+    let pages = if matches!(current_route, Route::NotFound | Route::Text { .. }) {
         html! {
             <li><Link<Route> classes={classes!("nav-link")} to={Route::Home} > {Route::Home} </Link<Route>></li>
         }
