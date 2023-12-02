@@ -31,7 +31,7 @@
     justify-content: center;
 
     #{&}-inner {
-        animation: Splash 0.5s linear normal;
+        animation: Splash 0.4s linear normal;
         display: inline-block;
         height: 10em;
         width: 10em;
@@ -41,11 +41,11 @@
 @keyframes Splash {
     0% {
         opacity: 0%;
-        transform: translateX(-5vw);
+        transform: translateX(-1.5em);
     }
     50% {
         opacity: 100%;
-        transform: translateX(-2.5vw);
+        transform: translateX(-0.75em);
     }
     100% {
         transform: translateX(0);
