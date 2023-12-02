@@ -15,18 +15,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use yew::prelude::*;
-use yew_router::prelude::*;
-
-use crate::Route;
 
 #[function_component(Footer)]
 pub fn footer() -> Html {
     html! {
         <div class="footer">
-            <p>
-                <a href="https://www.rust-lang.org/">{"Made with the Crab Language"} <img src="/crab.webp"/></a>
-                <sup><Link<Route> to={Route::Projects} >{"[source]"}</Link<Route>></sup>
-            </p>
+            <p>{"Made with Yew & ♥️"}</p>
+            <a href="https://github.com/SegmentationViolator/WebSegment">{"Source Code"}</a>
         </div>
     }
 }

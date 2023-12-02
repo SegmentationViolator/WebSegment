@@ -1,12 +1,19 @@
+@use "themed";
+
 .footer {
+    @include themed.themed(
+        #fff,
+        #111,
+    );
+
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     padding: 0.5em;
 
-    img {
-        bottom: -0.75em;
-        padding-left: 5px;
-        position: relative;
-        width: 2em;
+    @media (prefers-color-scheme: dark) {
+        @include themed.themed(
+            #fff,
+            change-color($color: #111, $whiteness: 15%),
+        );
     }
 }
