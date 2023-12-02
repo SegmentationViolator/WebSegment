@@ -109,16 +109,6 @@ impl Component for Text {
             FetchState::Success(text) => {
                 html! {
                     <>
-                        <h4>
-                            <a style="float: right"
-                                href={
-                                    format!("/texts/{}", ctx.props().filename)
-                                }
-                            >{"View Raw"}</a>
-                        </h4>
-                        <br/>
-                        <br/>
-
                         <p class={classes!("text")}>{text}</p>
                     </>
                 }
