@@ -18,13 +18,10 @@ use yew::prelude::*;
 
 use crate::card::{self, Card};
 
-const URLS: &[(&str, &str)] = &[
-    ("Ruschip", "https://github.com/SegmentationViolator/Ruschip"),
-    ("BatCon", "https://github.com/SegmentationViolator/BatCon"),
-    (
-        "WebSegment",
-        "https://github.com/SegmentationViolator/WebSegment",
-    ),
+const URLS: &[&str] = &[
+    "https://github.com/SegmentationViolator/Ruschip",
+    "https://github.com/SegmentationViolator/BatCon",
+    "https://github.com/SegmentationViolator/WebSegment",
 ];
 
 pub enum FetchState {
@@ -68,29 +65,21 @@ impl Component for Projects {
 
                     let mut cards: Vec<card::Props> = Vec::with_capacity(URLS.len());
 
-                    for (title, url) in URLS.iter().copied() {
-                        let proxied_url = format!(
-                            "https://corsproxy.io/?{url}", 
-                        );
+                    let responses = futures::join!(
+                        fetch_response(&client, format!("https://corsproxy.io/?{}", URLS[0])),
+                        fetch_response(&client, format!("https://corsproxy.io/?{}", URLS[1])),
+                        fetch_response(&client, format!("https://corsproxy.io/?{}", URLS[2])),
+                    );
 
-                        let response = match client.get(proxied_url).send().await
-                            .and_then(|response| response.error_for_status())
-                        {
-                            Err(error) => {
-                                return Message::SetState(FetchState::Failed(
-                                    error.without_url().to_string(),
-                                ))
-                            }
-                            Ok(response) => response,
-                        };
+                    let responses: [_; URLS.len()] = [
+                        responses.2,
+                        responses.1,
+                        responses.0,
+                    ];
 
-                        let response = match response.text().await {
-                            Err(error) => {
-                                return Message::SetState(FetchState::Failed(
-                                    error.without_url().to_string(),
-                                ))
-                            }
-                            Ok(response) => response,
+                    for (url, response) in URLS.iter().zip(responses) {
+                        let Ok(response) = response else {
+                            return Message::SetState(FetchState::Failed(response.unwrap_err().to_string()));
                         };
 
                         let dom = match tl::parse(&response, tl::ParserOptions::default()) {
@@ -136,6 +125,18 @@ impl Component for Projects {
                             if property == "og:url" { content } else { None }
                         }).unwrap_or(url);
 
+                        let title = og_properties.iter().copied().find_map(|(property, content)| {
+                            if property != "og:title" {
+                                return None
+                            }
+
+                            content.and_then(
+                                |text| text.split('/')
+                                     .last()
+                                     .and_then(|text| text.split(':').next())
+                            )
+                        }).unwrap_or(url.split('/').last().unwrap());
+
                         cards.push(card::Props {
                             title: title.to_string(), url: url.to_string(), image_url: image_url.to_string()
                         })
@@ -178,6 +179,13 @@ impl Component for Projects {
             }
         }
     }
+}
+
+async fn fetch_response(client: &reqwest::Client, url: String) -> Result<String, reqwest::Error> {
+    let response = client.get(url).send().await
+        .and_then(|response| response.error_for_status())?;
+
+    Ok(response.text().await?)
 }
 
 pub fn projects() -> Html {
