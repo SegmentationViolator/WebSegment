@@ -89,10 +89,6 @@ impl Component for Projects {
                         .and_then(|response| response.error_for_status())
                     {
                         Err(error) => {
-                            if let Some(reqwest::StatusCode::NOT_FOUND) = error.status() {
-                                return utils::Message::SetState(utils::FetchState::NotFound);
-                            }
-
                             return utils::Message::SetState(utils::FetchState::Error(
                                 error.to_string(),
                             ));
