@@ -1,4 +1,4 @@
-// web segment - a personal website used to host some text files and my portfolio
+// web segment - a personal website used to host some markdown files and my portfolio
 // Copyright (C) 2023 Segmentation Violator
 
 // This program is free software: you can redistribute it and/or modify
@@ -23,34 +23,22 @@ use crate::Route;
 pub fn navigation_bar() -> Html {
     let current_route: Route = use_route().unwrap();
 
-    let segmented = yew::use_state_eq(|| false);
-    let set_segmented = {
-        let segmented = segmented.clone();
-        Callback::from(move |_| segmented.set(true))
-    };
-
-    let pages = if matches!(current_route, Route::NotFound | Route::Text { .. }) {
+    let pages = if matches!(current_route, Route::NotFound | Route::MarkdownFile { .. }) {
         html! {
-            <li><Link<Route> classes={classes!("nav-link")} to={Route::Home} > {Route::Home} </Link<Route>></li>
+            <li><Link<Route> classes={classes!("nav-link")} to={Route::Home} > {Route::Home.to_string()} </Link<Route>></li>
         }
     } else {
-        Route::ALL
+        Route::DISPLAYABLE
             .iter()
             .filter(|route| &current_route != *route)
-            .map(|route| html! { <li><Link<Route> classes={classes!("nav-link")} to={route.clone()} > {route} </Link<Route>></li> })
+            .map(|route| html! { <li><Link<Route> classes={classes!("nav-link")} to={route.clone()} > {route.to_string()} </Link<Route>></li> })
             .collect::<Html>()
     };
 
-    let mut classes = classes!("nav-bar");
-    segmented.then(|| classes.push("segmented"));
-
     html! {
-        <div class={classes}>
+        <div class={classes!("nav-bar")}>
             <h2>
-                {"Web "}
-                <span onclick={set_segmented}>
-                    {"Segment"}
-                </span>
+                {"Web Segment"}
             </h2>
             <ui class={classes!("nav-links")}>
                 { pages }

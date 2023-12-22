@@ -1,4 +1,4 @@
-// web segment - a personal website used to host some text files and my portfolio
+// web segment - a personal website used to host some markdown files and my portfolio
 // Copyright (C) 2023  Segmentation Violator
 
 // This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,9 @@ use yew::prelude::*;
 pub fn footer() -> Html {
     html! {
         <div class="footer">
-            <p>{"Made with Yew & ♥️"}</p>
+            <p>{"Made with "}</p>
+            <a href="https://yew.rs/">{"Yew"}</a>
+            <p>{"Made with ♥️"}</p>
             <a href="https://github.com/SegmentationViolator/WebSegment">{"Source Code"}</a>
         </div>
     }

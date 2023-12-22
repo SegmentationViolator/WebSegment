@@ -1,4 +1,4 @@
-// web segment - a personal website used to host some text files and my portfolio
+// web segment - a personal website used to host some markdown files and my portfolio
 // Copyright (C) 2023 Segmentation Violator
 
 // This program is free software: you can redistribute it and/or modify
@@ -26,10 +26,11 @@ pub struct Props {
 #[function_component(Card)]
 pub fn card(properties: &Props) -> Html {
     html! {
-        <div class={classes!("card")}>
-            <h3 class={classes!("card-title")}>{&properties.title}</h3>
-            <a href={properties.url.clone()} class={classes!("card-link")}>{&properties.url}</a>
-            <img class={classes!("card-image")} src={properties.image_url.clone()}/>
-        </div>
+        <a href={properties.url.clone()}>
+            <div class={classes!("card")}>
+                <h3 class={classes!("card-title")}>{&properties.title}</h3>
+                    <img class={classes!("card-image")} src={properties.image_url.clone()}/>
+            </div>
+        </a>
     }
 }

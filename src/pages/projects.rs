@@ -1,4 +1,4 @@
-// web segment - a personal website used to host some text files and my portfolio
+// web segment - a personal website used to host some markdown files and my portfolio
 // Copyright (C) 2023  Segmentation Violator
 
 // This program is free software: you can redistribute it and/or modify
@@ -15,141 +15,126 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 use yew::prelude::*;
+use yewdux::prelude::*;
 
-use crate::card::{self, Card};
+use serde::Deserialize;
 
-const URLS: &[&str] = &[
-    "https://github.com/SegmentationViolator/Ruschip",
-    "https://github.com/SegmentationViolator/BatCon",
-    "https://github.com/SegmentationViolator/WebSegment",
-];
+use crate::card::Card;
+use crate::utils;
 
-pub enum FetchState {
-    Failed(String),
-    Fetching,
-    NotFetching,
-    Success(Vec<card::Props>),
-}
-
-pub enum Message {
-    FetchData,
-    SetState(FetchState),
+#[derive(PartialEq, Deserialize)]
+pub struct Project {
+    pub owner: String,
+    pub repository: String,
 }
 
 pub struct Projects {
-    fetch_state: FetchState,
+    dispatch: Dispatch<ProjectStore>,
+    fetch_state: utils::FetchState,
+}
+
+#[derive(Default, PartialEq, Store)]
+struct ProjectStore {
+    projects: Vec<Project>,
+    uuid: uuid::Uuid,
+}
+
+impl Project {
+    fn to_card(&self, uuid: &uuid::Uuid) -> Html {
+        let image_url = format!(
+            "https://opengraph.githubassets.com/{}/{}/{}",
+            uuid, self.owner, self.repository,
+        );
+        let title = self.repository.clone();
+        let url = format!("https://github.com/{}/{}", self.owner, self.repository);
+
+        html!(
+            <Card
+                title={title}
+                url={url}
+                image_url={image_url}
+            />
+        )
+    }
 }
 
 impl Component for Projects {
-    type Message = Message;
+    type Message = utils::Message<Vec<Project>>;
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
+        let dispatch = Dispatch::<ProjectStore>::new();
+        let project_store = dispatch.get();
+
+        let fetch_state = if project_store.projects.is_empty() {
+            utils::FetchState::Pending
+        } else {
+            utils::FetchState::Complete
+        };
+
         Self {
-            fetch_state: FetchState::NotFetching,
+            dispatch,
+            fetch_state,
         }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Message::FetchData => {
+            utils::Message::FetchData => {
                 ctx.link().send_future(async {
-                    let client = match reqwest::Client::builder().build() {
+                    let base = web_sys::window().unwrap().location().origin().unwrap();
+
+                    let projects = match reqwest::get(format!("{base}/projects.json"))
+                        .await
+                        .and_then(|response| response.error_for_status())
+                    {
                         Err(error) => {
-                            return Message::SetState(FetchState::Failed(
-                                error.without_url().to_string(),
-                            ))
+                            if let Some(reqwest::StatusCode::NOT_FOUND) = error.status() {
+                                return utils::Message::SetState(utils::FetchState::NotFound);
+                            }
+
+                            return utils::Message::SetState(utils::FetchState::Error(
+                                error.to_string(),
+                            ));
                         }
-                        Ok(client) => client,
+                        Ok(response) => {
+                            let result = match response.text().await {
+                                Err(error) => {
+                                    return utils::Message::SetState(utils::FetchState::Error(
+                                        error.to_string(),
+                                    ))
+                                }
+                                Ok(text) => serde_json::from_str::<Vec<Project>>(&text),
+                            };
+
+                            match result {
+                                Err(error) => {
+                                    return utils::Message::SetState(utils::FetchState::Error(
+                                        error.to_string(),
+                                    ))
+                                }
+                                Ok(projects) => projects,
+                            }
+                        }
                     };
 
-                    let mut cards: Vec<card::Props> = Vec::with_capacity(URLS.len());
-
-                    let responses = futures::join!(
-                        fetch_response(&client, format!("https://corsproxy.io/?{}", URLS[0])),
-                        fetch_response(&client, format!("https://corsproxy.io/?{}", URLS[1])),
-                        fetch_response(&client, format!("https://corsproxy.io/?{}", URLS[2])),
-                    );
-
-                    let responses: [_; URLS.len()] = [
-                        responses.2,
-                        responses.1,
-                        responses.0,
-                    ];
-
-                    for (url, response) in URLS.iter().zip(responses) {
-                        let Ok(response) = response else {
-                            return Message::SetState(FetchState::Failed(response.unwrap_err().to_string()));
-                        };
-
-                        let dom = match tl::parse(&response, tl::ParserOptions::default()) {
-                            Err(error) => {
-                                return Message::SetState(FetchState::Failed(
-                                    error.to_string(),
-                                ))
-                            }
-                            Ok(dom) => dom,
-                        };
-
-                        let Some(meta_tags) = dom.query_selector("meta") else {
-                            return Message::SetState(FetchState::Failed(
-                                "Couldn't extract meta-data".to_string()
-                            ))
-                        };
-                        let parser = dom.parser();
-
-                        let og_properties: Vec<(&str, Option<&str>)> = meta_tags.filter_map(
-                            |tag| tag.get(parser)
-                                .and_then(|node| node.as_tag())
-                                .and_then(|tag| Some(tag.attributes()))
-                                .and_then(|attrs| {
-                                    let Some(property) = attrs.get("property").flatten().and_then(|property| property.try_as_utf8_str()) else {
-                                        return None;
-                                    };
-
-                                    if !property.starts_with("og:") { return None };
-
-                                    attrs.get("content")
-                                        .flatten()
-                                        .and_then(|content| (property, content.try_as_utf8_str()).into())
-                                })
-                        ).collect();
-
-                        let Some(image_url) = og_properties.iter().copied().find_map(|(property, content)| {
-                            if property == "og:image" { content } else { None }
-                        }) else {
-                            return Message::SetState(FetchState::Failed("Couldn't extract an image".to_string()))
-                        };
-
-                        let url = og_properties.iter().copied().find_map(|(property, content)| {
-                            if property == "og:url" { content } else { None }
-                        }).unwrap_or(url);
-
-                        let title = og_properties.iter().copied().find_map(|(property, content)| {
-                            if property != "og:title" {
-                                return None
-                            }
-
-                            content.and_then(
-                                |text| text.split('/')
-                                     .last()
-                                     .and_then(|text| text.split(':').next())
-                            )
-                        }).unwrap_or(url.split('/').last().unwrap());
-
-                        cards.push(card::Props {
-                            title: title.to_string(), url: url.to_string(), image_url: image_url.to_string()
-                        })
-                    }
-
-                    return Message::SetState(FetchState::Success(cards));
+                    utils::Message::SetContent(projects)
                 });
 
                 ctx.link()
-                    .send_message(Message::SetState(FetchState::Fetching));
+                    .send_message(utils::Message::SetState(utils::FetchState::Ongoing));
                 false
             }
-            Message::SetState(state) => {
+            utils::Message::SetContent(projects) => {
+                self.dispatch.set(ProjectStore {
+                    projects,
+                    uuid: uuid::Uuid::new_v4(),
+                });
+
+                self.fetch_state = utils::FetchState::Complete;
+                true
+            }
+            utils::Message::SetState(state) => {
                 self.fetch_state = state;
                 true
             }
@@ -158,18 +143,13 @@ impl Component for Projects {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         match &self.fetch_state {
-            FetchState::Failed(error) => {
-                html!( <p class={classes!("status", "error")}>{error}</p> )
-            }
-            FetchState::Fetching => html!( <p class={classes!("status")}>{"Fetching..."}</p> ),
-            FetchState::NotFetching => {
-                ctx.link().send_message(Message::FetchData);
-                html!(<></>)
-            }
-            FetchState::Success(cards) => {
-                let cards = cards.iter().map(|card| html!{
-                    <Card title={card.title.clone()} url={card.url.clone()} image_url={card.image_url.clone()} />
-                });
+            utils::FetchState::Complete => {
+                let project_store = self.dispatch.get();
+
+                let cards = project_store
+                    .projects
+                    .iter()
+                    .map(|project| project.to_card(&project_store.uuid));
 
                 html! {
                     <div class={classes!("card-grid")}>
@@ -177,15 +157,19 @@ impl Component for Projects {
                     </div>
                 }
             }
+            utils::FetchState::Error(error) => {
+                html!( <p class={classes!("status", "error")}>{error}</p> )
+            }
+            utils::FetchState::Ongoing => {
+                html!( <p class={classes!("status")}>{"Fetching..."}</p> )
+            }
+            utils::FetchState::Pending => {
+                ctx.link().send_message(utils::Message::FetchData);
+                html!(<></>)
+            }
+            _ => unreachable!(),
         }
     }
-}
-
-async fn fetch_response(client: &reqwest::Client, url: String) -> Result<String, reqwest::Error> {
-    let response = client.get(url).send().await
-        .and_then(|response| response.error_for_status())?;
-
-    Ok(response.text().await?)
 }
 
 pub fn projects() -> Html {

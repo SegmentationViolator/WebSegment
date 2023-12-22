@@ -1,4 +1,4 @@
-// web segment - a personal website used to host some text files and my portfolio
+// web segment - a personal website used to host some markdown files and my portfolio
 // Copyright (C) 2023  Segmentation Violator
 
 // This program is free software: you can redistribute it and/or modify

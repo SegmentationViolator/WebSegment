@@ -23,7 +23,8 @@ mod card;
 mod footer;
 mod navigation_bar;
 mod pages;
-mod paragraph;
+
+mod utils;
 
 use footer::Footer;
 use navigation_bar::NavigationBar;
@@ -39,12 +40,12 @@ enum Route {
     NotFound,
     #[at("/projects")]
     Projects,
-    #[at("/txt/:filename")]
-    Text { filename: String },
+    #[at("/f/:filename")]
+    MarkdownFile { filename: String },
 }
 
 impl Route {
-    pub const ALL: [Self; 3] = [Self::Home, Self::Links, Self::Projects];
+    pub const DISPLAYABLE: [Self; 3] = [Self::Home, Self::Links, Self::Projects];
 }
 
 impl fmt::Display for Route {
@@ -97,7 +98,7 @@ fn switch(route: Route) -> Html {
         Route::Links => pages::links(),
         Route::NotFound => pages::not_found(),
         Route::Projects => pages::projects(),
-        Route::Text { filename } => pages::text(filename),
+        Route::MarkdownFile { filename } => pages::markdown_file(filename),
     }
 }
 

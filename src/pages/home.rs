@@ -1,4 +1,4 @@
-// web segment - a personal website used to host some text files and my portfolio
+// web segment - a personal website used to host some markdown files and my portfolio
 // Copyright (C) 2023  Segmentation Violator
 
 // This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-use crate::{paragraph::Paragraph, Route};
+use crate::Route;
 
 pub fn home() -> Html {
     html! {
@@ -26,29 +26,25 @@ pub fn home() -> Html {
 
             <h3>{"Segmentation Violator"}</h3><br/>
 
-            <Paragraph>
-                <p>
-                    {"I am a hobbyist programmer, my interests in the field of programming are systems programming, graphics programming and web development. "}
-                    {"I like making software that I find interesting, and learn by doing"}
-                </p>
-            </Paragraph><br/>
+            <p>
+                <pre style="display: inline;">{"    "}</pre>
+                {"I am a hobbyist programmer, my interests in the field of programming are systems programming, graphics programming and web development. "}
+                {"I like making software that I find interesting, and learn by doing"}
+            </p><br/>
 
-            <div style="margin: 1em;">
-                <h4>{"Programming Languages Known To Me:"}</h4>
-                <ul>
-                    <li>{"Rust"}</li>
-                    <li>{"Python"}</li>
-                </ul><br/>
-            </div>
+            <h3>{"Programming Languages Known To Me:"}</h3>
+            <ul>
+                <li>{"Rust"}</li>
+                <li>{"Python"}</li>
+            </ul><br/>
 
-            <Paragraph>
-                <p>
-                    {"I have worked on projects like Discord bots, a programming language, an emulator and a text editor. I have listed some of my projects "}
-                    <Link<Route> to={Route::Projects}>{"here"}</Link<Route>>
-                    {" and you can find links to my profiles on various platforms and my E-mail "}
-                    <Link<Route> to={Route::Links}>{"here"}</Link<Route>>
-                </p>
-            </Paragraph>
+            <p>
+                <pre style="display: inline;">{"    "}</pre>
+                {"I have worked on projects like Discord bots, a programming language, an emulator and a text editor. I have listed some of my projects "}
+                <Link<Route> to={Route::Projects}>{"here"}</Link<Route>>
+                {", links to my profiles on various platforms and my E-mail "}
+                <Link<Route> to={Route::Links}>{"here"}</Link<Route>>
+            </p>
         </>
     }
 }
