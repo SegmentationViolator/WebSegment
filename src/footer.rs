@@ -20,9 +20,11 @@ use yew::prelude::*;
 pub fn footer() -> Html {
     html! {
         <div class="footer">
-            <p>{"Made with "}</p>
-            <a href="https://yew.rs/">{"Yew"}</a>
-            <p>{"Made with ♥️"}</p>
+            <p>
+                {"Made with "}
+                <a href="https://yew.rs/">{"Yew"}</a>
+                {" & ♥️"}
+            </p>
             <a href="https://github.com/SegmentationViolator/WebSegment">{"Source Code"}</a>
         </div>
     }
