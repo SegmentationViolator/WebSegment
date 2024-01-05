@@ -51,7 +51,7 @@ fn animate(context: &Rc<super::Context>, data: &Data) {
 
     let mut snowflakes = data.borrow_mut();
     let snowfall_propability =
-        (snowflakes.len() as f64 / (width / 4.0)) * BASE_SNOWFALL_PROBABILITY;
+        (snowflakes.len() as f64 / (width / 4.0).min(MAX_SNOWFLAKES as f64)) * BASE_SNOWFALL_PROBABILITY;
 
     let snowfall_occured = random() < snowfall_propability;
 
@@ -93,7 +93,7 @@ fn animate(context: &Rc<super::Context>, data: &Data) {
         }
     }
 
-    if snowfall_occured && snowflakes.len() < (width / 2.0) as usize {
+    if snowfall_occured && snowflakes.len() < (width / 2.0).min(MAX_SNOWFLAKES as f64) as usize {
         snowflakes.push(Snowflake {
             density: (random() * MAX_DENSITY).max(MAX_DENSITY * 0.6),
             radius: (random() * MAX_RADIUS).max(MAX_RADIUS * 0.8),
@@ -140,7 +140,7 @@ pub fn initiate(target_id: String) {
 
     let closure = Rc::new(OnceCell::new());
 
-    let mut data = Vec::with_capacity(width as usize / 4);
+    let mut data = Vec::with_capacity((width as usize / 4).min(MAX_SNOWFLAKES));
     data.extend(
         iter::repeat_with(|| Snowflake {
             density: (random() * MAX_DENSITY).max(MAX_DENSITY * 0.6),
