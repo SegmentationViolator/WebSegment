@@ -29,5 +29,5 @@ struct Context {
     timestamp: f64,
 }
 
-// #[cfg(feature = "snowfall")]
+#[cfg(feature = "snowfall")]
 pub mod snowfall;
