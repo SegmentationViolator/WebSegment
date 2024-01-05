@@ -1,23 +1,39 @@
 @use "animations";
 @use "card";
 @use "card-grid";
+@use "colors";
 @use "footer";
 @use "markdown";
-@use "navigation_bar";
+@use "navigation-bar";
+@use "not-found";
+@use "status";
 @use "themed";
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Noto+Sans+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Noto+Sans+Mono&family=Space+Mono&display=swap');
 
 * {
-    margin: 0
+    --primary: #2832c2;
+    --error: #c22828;
+    margin: 0;
+
+    @media (prefers-color-scheme: dark) {
+        --primary: #82eefd;
+        --error: #fd8282;
+    }
 }
 
 html {
-    @include themed.themed;
+    @include themed.themed(
+        colors.$foreground,
+        colors.$background,
+    );
     font-family: 'IBM Plex Mono', monospace;
 
     @media (prefers-color-scheme: dark) {
-        @include themed.themed(#fff, #111);
+        @include themed.themed(
+            colors.$background,
+            colors.$foreground,
+        );
     }
 }
 
@@ -27,11 +43,7 @@ p {
     line-break: loose;
 
     a {
-        color: #2832c2;
-
-        @media (prefers-color-scheme: dark) {
-            color: #82eefd;
-        }
+        color: var(--primary);
     }
 }
 
@@ -45,19 +57,15 @@ sup a {
     flex-direction: column;
 }
 
-.body {
-    margin: 1em;
-    flex-grow: 1;
+#Canvas {
+    position: absolute;
+    top: 0px;
+    pointer-events: none;
+    height: 100svh;
+    width: 100svw;
 }
 
-.not-found {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    justify-content: center;
-
-    h1 {
-        font-size: 10em;
-    }
+.body {
+    flex-grow: 1;
+    margin: 1em 1em 0 1em;
 }

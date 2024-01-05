@@ -21,9 +21,11 @@ use yew_router::prelude::*;
 
 mod card;
 mod footer;
+mod indent;
 mod navigation_bar;
 mod pages;
 
+mod background_animation;
 mod utils;
 
 use footer::Footer;
@@ -59,16 +61,22 @@ fn app() -> Html {
     let splashed = yew::use_state_eq(|| false);
 
     if *splashed {
+        #[cfg(feature = "snowfall")]
+        background_animation::snowfall::initiate("Canvas".to_string());
+
         return yew::html! {
-            <div id="App">
-                <BrowserRouter>
-                    <NavigationBar />
-                    <div class="body">
-                        <Switch<Route> render={switch} />
-                    </div>
-                    <Footer />
-                </BrowserRouter>
-            </div>
+            <>
+                <div id="App">
+                    <BrowserRouter>
+                        <NavigationBar />
+                        <div class="body">
+                            <Switch<Route> render={switch} />
+                        </div>
+                        <Footer />
+                    </BrowserRouter>
+                </div>
+                <canvas id="Canvas"></canvas>
+            </>
         };
     }
 
@@ -78,9 +86,12 @@ fn app() -> Html {
     timeout.forget();
 
     yew::html! {
-        <div id="splash">
-            <img src="/logo.svg" id="splash-inner"/>
-        </div>
+        <>
+            <div id="Splash">
+                <img src="/logo.svg" id="Splash-inner"/>
+            </div>
+            <canvas id="Canvas"></canvas>
+        </>
     }
 }
 

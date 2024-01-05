@@ -25,12 +25,18 @@ pub struct Props {
 
 #[function_component(Card)]
 pub fn card(properties: &Props) -> Html {
+    let location = web_sys::window()
+        .unwrap()
+        .document()
+        .unwrap()
+        .location()
+        .unwrap();
+    let url = properties.url.clone();
+
     html! {
-        <a href={properties.url.clone()}>
-            <div class={classes!("card")}>
-                <h3 class={classes!("card-title")}>{&properties.title}</h3>
-                    <img class={classes!("card-image")} src={properties.image_url.clone()}/>
-            </div>
-        </a>
+        <div onclick={move |_| drop(location.set_href(&url))} class={classes!("card")}>
+            <h3 class={classes!("card-title")}>{&properties.title}</h3>
+                <img class={classes!("card-image")} src={properties.image_url.clone()}/>
+        </div>
     }
 }

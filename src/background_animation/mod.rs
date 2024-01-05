@@ -1,4 +1,4 @@
-// web segment - a personal website used to host some markdown files and my portfolio
+// web segment - a personal website used to host some text files and my portfolio
 // Copyright (C) 2023  Segmentation Violator
 
 // This program is free software: you can redistribute it and/or modify
@@ -14,17 +14,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use yew::prelude::*;
+use std::cell::OnceCell;
+use std::rc::Rc;
 
-pub fn links() -> Html {
-    html! {
-        <ul>
-            <li>
-                <p><a href="https://github.com/SegmentationViolator">{"Github"}</a></p>
-            </li>
-            <li>
-                <p><a href="mailto:segmentationviolator@proton.me">{"E-mail"}</a></p>
-            </li>
-        </ul>
-    }
+use wasm_bindgen::closure::Closure;
+use web_sys::CanvasRenderingContext2d;
+use web_sys::HtmlCanvasElement;
+
+#[allow(dead_code)]
+struct Context {
+    canvas: HtmlCanvasElement,
+    closure: Rc<OnceCell<Closure<dyn Fn()>>>,
+    renderer: CanvasRenderingContext2d,
 }
+
+#[cfg(feature = "snowfall")]
+pub mod snowfall;

@@ -1,9 +1,9 @@
 .fade {
-    animation: Fade 1s;
+    animation: Fade 1s ease;
 }
 
 .fade-again {
-    animation: FadeAgain 1s;
+    animation: FadeAgain 1s ease;
 }
 
 @keyframes Fade {
@@ -24,7 +24,7 @@
     }
 }
 
-#splash {
+#Splash {
     align-items: center;
     display: flex;
     height: 100vh;

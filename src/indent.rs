@@ -16,15 +16,13 @@
 
 use yew::prelude::*;
 
-pub fn links() -> Html {
-    html! {
-        <ul>
-            <li>
-                <p><a href="https://github.com/SegmentationViolator">{"Github"}</a></p>
-            </li>
-            <li>
-                <p><a href="mailto:segmentationviolator@proton.me">{"E-mail"}</a></p>
-            </li>
-        </ul>
-    }
+#[derive(PartialEq, Properties)]
+pub struct Props {
+    pub width: usize,
+}
+
+#[function_component(Indent)]
+pub fn indent(properties: &Props) -> Html {
+    let tab = " ".repeat(properties.width);
+    html!( <pre style="display: inline;">{tab}</pre> )
 }

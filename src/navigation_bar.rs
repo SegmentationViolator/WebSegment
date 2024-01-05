@@ -37,7 +37,7 @@ pub fn navigation_bar() -> Html {
 
     html! {
         <div class={classes!("nav-bar")}>
-            <h2>
+            <h2 class={classes!("nav-head")}>
                 {"Web Segment"}
             </h2>
             <ui class={classes!("nav-links")}>

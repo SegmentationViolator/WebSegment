@@ -17,6 +17,7 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+use crate::indent::Indent;
 use crate::Route;
 
 pub fn home() -> Html {
@@ -27,7 +28,7 @@ pub fn home() -> Html {
             <h3>{"Segmentation Violator"}</h3><br/>
 
             <p>
-                <pre style="display: inline;">{"    "}</pre>
+                <Indent width=4 />
                 {"I am a hobbyist programmer, my interests in the field of programming are systems programming, graphics programming and web development. "}
                 {"I like making software that I find interesting, and learn by doing"}
             </p><br/>
@@ -39,7 +40,7 @@ pub fn home() -> Html {
             </ul><br/>
 
             <p>
-                <pre style="display: inline;">{"    "}</pre>
+                <Indent width=4 />
                 {"I have worked on projects like Discord bots, a programming language, an emulator and a text editor. I have listed some of my projects "}
                 <Link<Route> to={Route::Projects}>{"here"}</Link<Route>>
                 {", links to my profiles on various platforms and my E-mail "}

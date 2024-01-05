@@ -1,10 +1,13 @@
+@use "colors";
 @use "themed";
 
 .footer {
-    @include themed.themed(
-        #fff,
-        #111,
-    );
+    @media (prefers-color-scheme: dark) {
+        @include themed.themed(
+            colors.$foreground,
+            colors.$background,
+        );
+    }
 
     display: flex;
     justify-content: space-between;
@@ -12,8 +15,8 @@
 
     @media (prefers-color-scheme: dark) {
         @include themed.themed(
-            #fff,
-            change-color($color: #111, $whiteness: 15%),
+            colors.$background,
+            change-color($color: colors.$foreground, $whiteness: 15%),
         );
     }
 }

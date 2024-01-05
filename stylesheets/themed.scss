@@ -1,16 +1,16 @@
-@mixin themed($primary: #111, $secondary: #fff) {
-    background: $secondary;
-    color: $primary;
+@mixin themed($foreground, $background) {
+    background: $background;
+    color: $foreground;
 
     a {
-        color: $primary;
+        color: $foreground;
 
         &:hover {
-            color: change-color($color: $primary, $lightness: 45%,);
+            color: change-color($color: $foreground, $lightness: 45%,);
         }
     }
 
     span {
-        background: $secondary;
+        background: $background;
     }
 }

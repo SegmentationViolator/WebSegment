@@ -1,0 +1,24 @@
+.nav-bar {
+    align-items: center;
+    border-bottom: 0.2em solid;
+    display: flex;
+    justify-content: space-between;
+    padding: 1em;
+
+    .nav-head {
+        font-family: 'Space Mono', monospace;
+    }
+
+    .nav-link {
+        text-decoration-line: none;
+    }
+
+    .nav-links {
+        list-style-type: none;
+
+        li {
+            float: left;
+            padding-right: 1em;
+        }
+    }
+}

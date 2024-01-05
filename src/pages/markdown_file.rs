@@ -96,7 +96,7 @@ impl Component for MarkdownFile {
                 });
 
                 self.fetch_state = utils::FetchState::Ongoing;
-                false
+                true
             }
             utils::Message::SetContent(content) => {
                 let filename = ctx.props().filename.clone();

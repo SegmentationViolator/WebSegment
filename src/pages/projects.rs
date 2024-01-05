@@ -119,7 +119,7 @@ impl Component for Projects {
 
                 ctx.link()
                     .send_message(utils::Message::SetState(utils::FetchState::Ongoing));
-                false
+                true
             }
             utils::Message::SetContent(projects) => {
                 self.dispatch.set(ProjectStore {
@@ -153,15 +153,15 @@ impl Component for Projects {
                     </div>
                 }
             }
-            utils::FetchState::Error(error) => {
-                html!( <p class={classes!("status", "error")}>{error}</p> )
+            utils::FetchState::Error(error_message) => {
+                html!( <p class={classes!("status", "error")}>{error_message}</p> )
             }
             utils::FetchState::Ongoing => {
-                html!( <p class={classes!("status")}>{"Fetching..."}</p> )
+                html! ( <p class={classes!("status")}>{"Fetching..."}</p> )
             }
             utils::FetchState::Pending => {
                 ctx.link().send_message(utils::Message::FetchData);
-                html!(<></>)
+                html!()
             }
             _ => unreachable!(),
         }
