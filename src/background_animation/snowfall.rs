@@ -50,8 +50,8 @@ fn animate(context: &Rc<super::Context>, data: &Data) {
     renderer.clear_rect(0.0, 0.0, width, height);
 
     let mut snowflakes = data.borrow_mut();
-    let snowfall_propability =
-        (snowflakes.len() as f64 / (width / 4.0).min(MAX_SNOWFLAKES as f64)) * BASE_SNOWFALL_PROBABILITY;
+    let snowfall_propability = (snowflakes.len() as f64 / (width / 4.0).min(MAX_SNOWFLAKES as f64))
+        * BASE_SNOWFALL_PROBABILITY;
 
     let snowfall_occured = random() < snowfall_propability;
 
@@ -80,7 +80,7 @@ fn animate(context: &Rc<super::Context>, data: &Data) {
                 * (time * snowflake.sway_frequency).sin();
 
         if snowflake.x > width {
-            snowflake.x = snowflake.x % width + random() * width/2.0;
+            snowflake.x = snowflake.x % width + random() * width / 2.0;
             snowflake.y = random() * height * 0.1;
             continue;
         }
