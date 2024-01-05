@@ -26,7 +26,8 @@ struct Context {
     canvas: HtmlCanvasElement,
     closure: Rc<OnceCell<Closure<dyn Fn()>>>,
     renderer: CanvasRenderingContext2d,
+    timestamp: f64,
 }
 
-#[cfg(feature = "snowfall")]
+// #[cfg(feature = "snowfall")]
 pub mod snowfall;
