@@ -17,6 +17,7 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+use crate::config::NAME;
 use crate::Route;
 
 #[function_component(NavigationBar)]
@@ -38,7 +39,7 @@ pub fn navigation_bar() -> Html {
     html! {
         <div class={classes!("nav-bar")}>
             <h2 class={classes!("nav-head")}>
-                {"Web Segment"}
+                {NAME}
             </h2>
             <ui class={classes!("nav-links")}>
                 { pages }

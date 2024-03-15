@@ -1,4 +1,3 @@
-#[derive(Debug)]
 pub enum FetchState {
     Complete,
     Error(String),

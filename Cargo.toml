@@ -1,6 +1,6 @@
 [package]
 name = "web-segment"
-version = "0.4.0"
+version = "0.5"
 edition = "2021"
 license = "AGPL-3.0-only"
 authors = ["SegmentationViolator <segmentationviolator@proton.me>"]
@@ -8,13 +8,12 @@ authors = ["SegmentationViolator <segmentationviolator@proton.me>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-futures = "0.3.29"
 gloo-timers = "0.3.0"
 markdown = "1.0.0-alpha.16"
 reqwest = { version = "0.11.22" }
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
-uuid = { version = "1.6.1", features = ["v4", "fast-rng", "js"] }
+uuid = { version = "1.7.0", features = ["js", "v4"] }
 wasm-bindgen = "0.2.87"
 yew = { version = "0.21", features = ["csr"] }
 yew-router = "0.18"
@@ -23,17 +22,17 @@ yewdux = "0.9"
 [dependencies.web-sys]
 version = "0.3.61"
 features = [
-    "CanvasRenderingContext2d",
-    "CssStyleDeclaration",
+    # "CanvasRenderingContext2d",
+    # "CssStyleDeclaration",
     "Document",
     "Element",
-    "HtmlCanvasElement",
+    # "HtmlCanvasElement",
     "Location",
     "Window",
 ]
 
-[features]
-snowfall = []
+# [features]
+# snowfall = []
 
 [profile.release]
 strip = true

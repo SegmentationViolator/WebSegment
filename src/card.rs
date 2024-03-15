@@ -34,7 +34,7 @@ pub fn card(properties: &Props) -> Html {
     let url = properties.url.clone();
 
     html! {
-        <div onclick={move |_| drop(location.set_href(&url))} class={classes!("card")}>
+        <div onclick={move |_| { let _ = location.set_href(&url); } } class={classes!("card")}>
             <h3 class={classes!("card-title")}>{&properties.title}</h3>
                 <img class={classes!("card-image")} src={properties.image_url.clone()}/>
         </div>

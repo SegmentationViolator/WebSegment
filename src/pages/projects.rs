@@ -14,18 +14,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>
 
+use wasm_bindgen::UnwrapThrowExt;
 use yew::prelude::*;
 use yewdux::prelude::*;
 
 use serde::Deserialize;
 
 use crate::card::Card;
+use crate::config::GITHUB_USERNAME;
 use crate::utils;
 
 #[derive(PartialEq, Deserialize)]
 pub struct Project {
-    pub owner: String,
-    pub repository: String,
+    full_name: String,
+    html_url: String,
+    name: String,
+
+    #[serde(skip_deserializing)]
+    uuid: uuid::Uuid,
 }
 
 pub struct Projects {
@@ -36,17 +42,23 @@ pub struct Projects {
 #[derive(Default, PartialEq, Store)]
 struct ProjectStore {
     projects: Vec<Project>,
-    uuid: uuid::Uuid,
 }
 
 impl Project {
-    fn to_card(&self, uuid: &uuid::Uuid) -> Html {
+    fn image_url(&self) -> String {
+        format!(
+            "https://opengraph.githubassets.com/{}/{}",
+            self.uuid, self.full_name,
+        )
+    }
+
+    fn to_card(&self) -> Html {
         let image_url = format!(
-            "https://opengraph.githubassets.com/{}/{}/{}",
-            uuid, self.owner, self.repository,
+            "https://opengraph.githubassets.com/{}/{}",
+            self.uuid, self.full_name,
         );
-        let title = self.repository.clone();
-        let url = format!("https://github.com/{}/{}", self.owner, self.repository);
+        let title = self.name.clone();
+        let url = self.html_url.clone();
 
         html!(
             <Card
@@ -82,11 +94,11 @@ impl Component for Projects {
         match msg {
             utils::Message::FetchData => {
                 ctx.link().send_future(async {
-                    let base = web_sys::window().unwrap().location().origin().unwrap();
-
-                    let projects = match reqwest::get(format!("{base}/projects.json"))
-                        .await
-                        .and_then(|response| response.error_for_status())
+                   let projects: Vec<Project> = match reqwest::get(format!(
+                        "https://api.github.com/users/{GITHUB_USERNAME}/starred"
+                    ))
+                    .await
+                    .and_then(|response| response.error_for_status())
                     {
                         Err(error) => {
                             return utils::Message::SetState(utils::FetchState::Error(
@@ -109,7 +121,22 @@ impl Component for Projects {
                                         error.to_string(),
                                     ))
                                 }
-                                Ok(projects) => projects,
+                                Ok(projects) => projects
+                                    .into_iter()
+                                    .filter_map(|project| {
+                                        let owner_name =
+                                            project.full_name.split('/').nth(0).unwrap();
+
+                                        if owner_name != GITHUB_USERNAME {
+                                            return None;
+                                        }
+
+                                        Some(Project {
+                                            uuid: uuid::Uuid::new_v4(),
+                                            ..project
+                                        })
+                                    })
+                                    .collect(),
                             }
                         }
                     };
@@ -122,10 +149,7 @@ impl Component for Projects {
                 true
             }
             utils::Message::SetContent(projects) => {
-                self.dispatch.set(ProjectStore {
-                    projects,
-                    uuid: uuid::Uuid::new_v4(),
-                });
+                self.dispatch.set(ProjectStore { projects });
 
                 self.fetch_state = utils::FetchState::Complete;
                 true
@@ -145,7 +169,7 @@ impl Component for Projects {
                 let cards = project_store
                     .projects
                     .iter()
-                    .map(|project| project.to_card(&project_store.uuid));
+                    .map(|project| project.to_card());
 
                 html! {
                     <div class={classes!("card-grid")}>

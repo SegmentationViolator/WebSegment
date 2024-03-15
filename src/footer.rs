@@ -16,6 +16,8 @@
 
 use yew::prelude::*;
 
+use crate::config::{GITHUB_USERNAME, REPOSITORY_NAME};
+
 #[function_component(Footer)]
 pub fn footer() -> Html {
     html! {
@@ -25,7 +27,7 @@ pub fn footer() -> Html {
                 <a href="https://yew.rs/">{"Yew"}</a>
                 {" & ♥️"}
             </p>
-            <a href="https://github.com/SegmentationViolator/WebSegment">{"Source Code"}</a>
+            <a href={format!("https://github.com/{GITHUB_USERNAME}/{REPOSITORY_NAME}")}>{"Source Code"}</a>
         </div>
     }
 }

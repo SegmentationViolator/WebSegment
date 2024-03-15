@@ -16,14 +16,16 @@
 
 use yew::prelude::*;
 
+use crate::config::{EMAIL, GITHUB_USERNAME};
+
 pub fn links() -> Html {
     html! {
         <ul>
             <li>
-                <p><a href="https://github.com/SegmentationViolator">{"Github"}</a></p>
+                <p><a href={format!("https://github.com/{GITHUB_USERNAME}/")}>{"Github"}</a></p>
             </li>
             <li>
-                <p><a href="mailto:segmentationviolator@proton.me">{"E-mail"}</a></p>
+                <p><a href={EMAIL}>{"E-mail"}</a></p>
             </li>
         </ul>
     }

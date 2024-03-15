@@ -27,14 +27,12 @@
 #Splash {
     align-items: center;
     display: flex;
-    height: 100vh;
+    height: 100svh;
     justify-content: center;
 
     #{&}-inner {
-        animation: Splash 0.4s linear normal;
+        animation: Splash 0.4s ease normal;
         display: inline-block;
-        height: 10em;
-        width: 10em;
     }
 }
 
@@ -43,9 +41,11 @@
         opacity: 0%;
         transform: translateX(-1.5em);
     }
-    50% {
+    25% {
         opacity: 100%;
-        transform: translateX(-0.75em);
+    }
+    50% {
+        transform: translateX(0.25em);
     }
     100% {
         transform: translateX(0);

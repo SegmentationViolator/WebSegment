@@ -57,15 +57,15 @@ sup a {
     flex-direction: column;
 }
 
-#Canvas {
-    position: absolute;
-    top: 0px;
-    pointer-events: none;
-    height: 100svh;
-    width: 100svw;
-}
+// #Canvas {
+//    position: absolute;
+//    top: 0px;
+//    pointer-events: none;
+//    height: 100svh;
+//    width: 100svw;
+// }
 
 .body {
     flex-grow: 1;
-    margin: 1em 1em 0 1em;
+    padding: 1em 1em 1em 1em;
 }
