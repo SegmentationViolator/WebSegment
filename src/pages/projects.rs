@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>
 
-use wasm_bindgen::UnwrapThrowExt;
 use yew::prelude::*;
 use yewdux::prelude::*;
 
@@ -118,7 +117,7 @@ impl Component for Projects {
                                     .into_iter()
                                     .filter_map(|project| {
                                         let owner_name =
-                                            project.full_name.split('/').nth(0).unwrap();
+                                            project.full_name.split('/').next().unwrap();
 
                                         if owner_name != GITHUB_USERNAME {
                                             return None;
