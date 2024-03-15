@@ -45,13 +45,6 @@ struct ProjectStore {
 }
 
 impl Project {
-    fn image_url(&self) -> String {
-        format!(
-            "https://opengraph.githubassets.com/{}/{}",
-            self.uuid, self.full_name,
-        )
-    }
-
     fn to_card(&self) -> Html {
         let image_url = format!(
             "https://opengraph.githubassets.com/{}/{}",
