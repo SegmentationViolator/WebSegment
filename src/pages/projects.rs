@@ -118,7 +118,7 @@ impl Component for Projects {
                                     .into_iter()
                                     .filter_map(|project| {
                                         let owner_name =
-                                            project.full_name.split('/').next().unwrap();
+                                            project.full_name.split('/').nth(0).unwrap();
 
                                         if owner_name != GITHUB_USERNAME {
                                             return None;
