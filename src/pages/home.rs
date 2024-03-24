@@ -33,17 +33,11 @@ pub fn home() -> Html {
                 {"I like making software that I find interesting, and learn by doing"}
             </p><br/>
 
-            <h3>{"Programming Languages Known To Me:"}</h3>
-            <ul>
-                <li>{"Rust"}</li>
-                <li>{"Python"}</li>
-            </ul><br/>
-
             <p>
                 <Indent width=4 />
-                {"I have worked on projects like Discord bots, a programming language, an emulator and a text editor. I have listed some of my projects "}
+                {"The projects I have worked on include Discord bots, an emulator, a programming language and a text editor. I have listed some of my projects "}
                 <Link<Route> to={Route::Projects}>{"here"}</Link<Route>>
-                {", links to my profiles on various platforms and my E-mail "}
+                {" and links to my profiles on various platforms and my E-mail "}
                 <Link<Route> to={Route::Links}>{"here"}</Link<Route>>
             </p>
         </>
