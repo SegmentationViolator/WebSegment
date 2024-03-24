@@ -9,8 +9,6 @@
 @use "status";
 @use "themed";
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Noto+Sans+Mono&family=Space+Mono&display=swap');
-
 * {
     --primary: #2832c2;
     --error: #c22828;
@@ -27,7 +25,7 @@ html {
         colors.$foreground,
         colors.$background,
     );
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: "IBM Plex Mono", monospace;
 
     @media (prefers-color-scheme: dark) {
         @include themed.themed(

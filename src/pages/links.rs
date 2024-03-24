@@ -22,10 +22,16 @@ pub fn links() -> Html {
     html! {
         <ul>
             <li>
-                <p><a href={format!("https://github.com/{GITHUB_USERNAME}/")}>{"Github"}</a></p>
+                <p>
+                    <a href={format!("https://github.com/{GITHUB_USERNAME}/")}>{GITHUB_USERNAME}</a>
+                    <sup>{"[GitHub]"}</sup>
+                </p>
             </li>
             <li>
-                <p><a href={EMAIL}>{"E-mail"}</a></p>
+                <p>
+                    {EMAIL}
+                    <sup>{"[E-mail]"}</sup>
+                </p>
             </li>
         </ul>
     }
