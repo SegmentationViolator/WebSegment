@@ -24,7 +24,7 @@ use crate::Route;
 pub fn navigation_bar() -> Html {
     let current_route: Route = use_route().unwrap();
 
-    let pages = if matches!(current_route, Route::NotFound | Route::MarkdownFile { .. }) {
+    let pages = if matches!(current_route, Route::NotFound | Route::Post { .. }) {
         html! {
             <li><Link<Route> classes={classes!("nav-link")} to={Route::Home} > {Route::Home.to_string()} </Link<Route>></li>
         }

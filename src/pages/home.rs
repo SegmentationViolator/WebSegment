@@ -30,7 +30,7 @@ pub fn home() -> Html {
             <p>
                 <Indent width=4 />
                 {"I am a hobbyist programmer, my interests in the field of programming are systems programming, graphics programming and web development. "}
-                {"I like making software that I find interesting, and learn by doing"}
+                {"I like making software that I find interesting."}
             </p><br/>
 
             <p>

@@ -67,7 +67,7 @@ impl Component for Projects {
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
-        let dispatch = Dispatch::<ProjectStore>::new();
+        let dispatch = Dispatch::<ProjectStore>::global();
         let project_store = dispatch.get();
 
         let fetch_state = if project_store.projects.is_empty() {

@@ -2,10 +2,11 @@
 @use "card";
 @use "card-grid";
 @use "colors";
+@use "effects";
 @use "footer";
-@use "markdown";
 @use "navigation-bar";
 @use "not-found";
+@use "post";
 @use "status";
 @use "themed";
 
@@ -47,6 +48,12 @@ p {
 
 sup a {
     text-decoration-line: none;
+}
+
+svg {
+    fill: var(--primary);
+    height: 1em;
+    width: 1em;
 }
 
 #App {

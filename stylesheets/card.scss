@@ -21,6 +21,10 @@
         margin-bottom: 1.5em;
     }
 
+    #{&}-subtext {
+        color: grey;
+    }
+
     #{&}-image {
         aspect-ratio: 2/1;
         max-width: 100%;

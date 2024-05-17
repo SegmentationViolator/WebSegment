@@ -41,14 +41,16 @@ enum Route {
     #[not_found]
     #[at("/404.html")]
     NotFound,
+    #[at("/post/:filename")]
+    Post { filename: String },
+    #[at("/posts")]
+    Posts,
     #[at("/projects")]
     Projects,
-    #[at("/f/:filename")]
-    MarkdownFile { filename: String },
 }
 
 impl Route {
-    pub const DISPLAYABLE: [Self; 3] = [Self::Home, Self::Links, Self::Projects];
+    pub const DISPLAYABLE: [Self; 4] = [Self::Home, Self::Links, Self::Projects, Self::Posts];
 }
 
 impl fmt::Display for Route {
@@ -109,8 +111,9 @@ fn switch(route: Route) -> Html {
         Route::Home => pages::home(),
         Route::Links => pages::links(),
         Route::NotFound => pages::not_found(),
+        Route::Post { filename } => pages::post(filename),
+        Route::Posts => pages::posts(),
         Route::Projects => pages::projects(),
-        Route::MarkdownFile { filename } => pages::markdown_file(filename),
     }
 }
 

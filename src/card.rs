@@ -16,11 +16,14 @@
 
 use yew::prelude::*;
 
-#[derive(PartialEq, Properties)]
+#[derive(Clone, PartialEq, Properties)]
 pub struct Props {
     pub title: String,
     pub url: String,
-    pub image_url: String,
+    #[prop_or_default]
+    pub subtext: Option<String>,
+    #[prop_or_default]
+    pub image_url: Option<String>,
 }
 
 #[function_component(Card)]
@@ -34,9 +37,13 @@ pub fn card(properties: &Props) -> Html {
     let url = properties.url.clone();
 
     html! {
-        <div onclick={move |_| { let _ = location.set_href(&url); } } class={classes!("card")}>
+        <div onclick={move |_| { let _ = location.set_href(&url); } } class={classes!("card", "hover-scale")}>
             <h3 class={classes!("card-title")}>{&properties.title}</h3>
-                <img class={classes!("card-image")} src={properties.image_url.clone()}/>
+                if let Some(image_url) = &properties.image_url {
+                    <img class={classes!("card-image")} src={image_url.clone()}/>
+                } else if let Some(subtext) = &properties.subtext {
+                    <small class={classes!("card-subtext")}>{subtext.clone()}</small>
+                }
         </div>
     }
 }

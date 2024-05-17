@@ -16,6 +16,8 @@
 
 use std::collections;
 
+use serde::Deserialize;
+use serde::Serialize;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use yewdux::prelude::*;
@@ -23,14 +25,27 @@ use yewdux::prelude::*;
 use crate::utils;
 use crate::Route;
 
-pub struct MarkdownFile {
-    dispatch: Dispatch<MarkdownStore>,
+pub struct Post {
+    data: Option<PostData>,
+    dispatch: Dispatch<PostStore>,
     fetch_state: utils::FetchState,
 }
 
-#[derive(Clone, Default, PartialEq, Store)]
-pub struct MarkdownStore {
-    map: collections::HashMap<String, String>,
+#[derive(Clone, Default, PartialEq, Store, Deserialize, Serialize)]
+pub struct PostMeta {
+    pub date: String,
+    pub title: String,
+}
+
+pub struct PostData {
+    body: String,
+    meta: PostMeta,
+}
+
+#[derive(Clone, Default, PartialEq, Store, Deserialize, Serialize)]
+#[store(storage = "local", storage_tab_sync)]
+pub struct PostStore {
+    pub posts: collections::HashMap<String, PostMeta>,
 }
 
 #[derive(PartialEq, Properties)]
@@ -38,23 +53,17 @@ pub struct Props {
     pub filename: String,
 }
 
-impl Component for MarkdownFile {
-    type Message = utils::Message<String>;
+impl Component for Post {
+    type Message = utils::Message<PostData>;
     type Properties = Props;
 
-    fn create(ctx: &Context<Self>) -> Self {
-        let dispatch = Dispatch::<MarkdownStore>::new();
-        let content_store = dispatch.get();
-
-        let fetch_state = if content_store.map.contains_key(&ctx.props().filename) {
-            utils::FetchState::Complete
-        } else {
-            utils::FetchState::Pending
-        };
+    fn create(_ctx: &Context<Self>) -> Self {
+        let dispatch = Dispatch::<PostStore>::global();
 
         Self {
+            data: None,
             dispatch,
-            fetch_state,
+            fetch_state: utils::FetchState::Pending,
         }
     }
 
@@ -66,7 +75,7 @@ impl Component for MarkdownFile {
                 ctx.link().send_future(async move {
                     let base = web_sys::window().unwrap().location().origin().unwrap();
 
-                    let text = match reqwest::get(format!("{base}/texts/{filename}"))
+                    let post = match reqwest::get(format!("{base}/texts/{filename}"))
                         .await
                         .and_then(|response| response.error_for_status())
                     {
@@ -86,29 +95,60 @@ impl Component for MarkdownFile {
                                 ))
                             }
                             Ok(text) => {
-                                markdown::to_html_with_options(&text, &markdown::Options::gfm())
-                                    .expect("Without MDX enabled, there should be no errors")
+                                let (title, date, text) = {
+                                    let mut lines = text.split_inclusive('\n');
+
+                                    let Some(title) = lines.next() else {
+                                        return utils::Message::SetState(utils::FetchState::Error(
+                                            "Post file is empty.".to_string()
+                                        ))
+                                    };
+
+                                    let date = lines.next().unwrap_or("Unknown Date");
+
+                                    (
+                                        title.trim().to_string(),
+                                        date.trim().to_string(),
+                                        lines.collect::<String>()
+                                    )
+                                };
+                                let body = markdown::to_html_with_options(&text, &markdown::Options::gfm())
+                                    .expect("Without MDX enabled, there should be no errors");
+
+                                PostData {
+                                    body,
+                                    meta: PostMeta {
+                                        date,
+                                        title,
+                                    }
+                                }
                             }
                         },
                     };
 
-                    utils::Message::SetContent(text)
+                    utils::Message::SetContent(post)
                 });
 
                 self.fetch_state = utils::FetchState::Ongoing;
                 true
             }
-            utils::Message::SetContent(content) => {
-                let filename = ctx.props().filename.clone();
-
-                self.dispatch.reduce_mut(|content_store| {
-                    content_store.map.insert(filename, content);
+            utils::Message::SetContent(post) => {
+                self.dispatch.reduce_mut(|post_store| {
+                    post_store.posts.insert(ctx.props().filename.clone(), post.meta.clone());
                 });
+
+                let _ = self.data.insert(post);
 
                 self.fetch_state = utils::FetchState::Complete;
                 true
             }
             utils::Message::SetState(state) => {
+                if matches!(state, utils::FetchState::NotFound) {
+                    self.dispatch.reduce_mut(|content_store| {
+                        content_store.posts.remove(&ctx.props().filename);
+                    });
+                }
+
                 self.fetch_state = state;
                 true
             }
@@ -118,16 +158,20 @@ impl Component for MarkdownFile {
     fn view(&self, ctx: &Context<Self>) -> Html {
         match &self.fetch_state {
             utils::FetchState::Complete => {
-                let content_store = self.dispatch.get();
+                let content = self.data.as_ref()
+                    .expect("Data shouldn't be None while fetch_state is Complete");
+                let body = Html::from_html_unchecked(content.body.clone().into());
 
-                let content = content_store
-                    .map
-                    .get(&ctx.props().filename)
-                    .unwrap()
-                    .clone();
-                let html = Html::from_html_unchecked(content.into());
                 html!(
-                    <div class={classes!("markdown")}>{html}</div>
+                    <>
+                        <div class={classes!("post")}>
+                            <h1>{content.meta.title.clone()}</h1>
+                            <small>{content.meta.date.clone()}</small>
+                            <br/>
+                            <br/>
+                            {body}
+                        </div>
+                    </>
                 )
             }
             utils::FetchState::NotFound => html!( <Redirect<Route> to={Route::NotFound} /> ),
@@ -144,6 +188,6 @@ impl Component for MarkdownFile {
         }
     }
 }
-pub fn markdown_file(filename: String) -> Html {
-    html!(<MarkdownFile filename={filename}/>)
+pub fn post(filename: String) -> Html {
+    html!(<Post filename={filename}/>)
 }
