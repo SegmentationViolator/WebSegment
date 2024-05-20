@@ -15,11 +15,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use yew::prelude::*;
+use yew_router::prelude::*;
+
+use crate::{utils, Route};
 
 #[derive(Clone, PartialEq, Properties)]
 pub struct Props {
     pub title: String,
-    pub url: String,
+    pub url: utils::Url,
     #[prop_or_default]
     pub subtext: Option<String>,
     #[prop_or_default]
@@ -34,16 +37,39 @@ pub fn card(properties: &Props) -> Html {
         .unwrap()
         .location()
         .unwrap();
-    let url = properties.url.clone();
-
-    html! {
-        <div onclick={move |_| { let _ = location.set_href(&url); } } class={classes!("card", "hover-scale")}>
-            <h3 class={classes!("card-title")}>{&properties.title}</h3>
-                if let Some(image_url) = &properties.image_url {
-                    <img class={classes!("card-image")} src={image_url.clone()}/>
-                } else if let Some(subtext) = &properties.subtext {
+    let inner = html! {
+        <>
+            <div class={classes!("card-head")}>
+                <h3>{&properties.title}</h3>
+                if let Some(subtext) = &properties.subtext {
                     <small class={classes!("card-subtext")}>{subtext.clone()}</small>
                 }
-        </div>
+            </div>
+
+            if let Some(image_url) = &properties.image_url {
+                <img class={classes!("card-image")} src={image_url.clone()}/>
+            }
+        </>
+    };
+
+    if let utils::Url::External(url) = &properties.url {
+        let url = url.clone();
+        return html! {
+            <div onclick={move |_| { let _ = location.set_href(&url); } } class={classes!("card", "hover-scale")}>
+                {inner}
+            </div>
+        }
+    }
+
+    let utils::Url::Internal(route) = &properties.url else { unreachable!() };
+
+    html! {
+        <Link<Route> to={route.to_owned()} classes={classes!("card-link")}>
+            <div class={classes!("card", "hover-scale")}>
+                {inner}
+            </div>
+        </Link<Route>>
     }
 }
+
+

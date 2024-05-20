@@ -100,8 +100,8 @@ impl Component for Post {
 
                                     let Some(title) = lines.next() else {
                                         return utils::Message::SetState(utils::FetchState::Error(
-                                            "Post file is empty.".to_string()
-                                        ))
+                                            "Post file is empty.".to_string(),
+                                        ));
                                     };
 
                                     let date = lines.next().unwrap_or("Unknown Date");
@@ -109,18 +109,32 @@ impl Component for Post {
                                     (
                                         title.trim().to_string(),
                                         date.trim().to_string(),
-                                        lines.collect::<String>()
+                                        lines.collect::<String>(),
                                     )
                                 };
-                                let body = markdown::to_html_with_options(&text, &markdown::Options::gfm())
-                                    .expect("Without MDX enabled, there should be no errors");
+                                let body = markdown::to_html_with_options(
+                                    &text,
+                                    &markdown::Options {
+                                        compile: markdown::CompileOptions {
+                                            allow_dangerous_html: true,
+                                            allow_dangerous_protocol: false,
+                                            ..markdown::CompileOptions::gfm()
+                                        },
+                                        parse: markdown::ParseOptions {
+                                            constructs: markdown::Constructs {
+                                                math_flow: false,
+                                                math_text: false,
+                                                ..markdown::Constructs::gfm()
+                                            },
+                                            ..markdown::ParseOptions::gfm()
+                                        }
+                                    },
+                                )
+                                .expect("Without MDX enabled, there should be no errors");
 
                                 PostData {
                                     body,
-                                    meta: PostMeta {
-                                        date,
-                                        title,
-                                    }
+                                    meta: PostMeta { date, title },
                                 }
                             }
                         },
@@ -134,7 +148,9 @@ impl Component for Post {
             }
             utils::Message::SetContent(post) => {
                 self.dispatch.reduce_mut(|post_store| {
-                    post_store.posts.insert(ctx.props().filename.clone(), post.meta.clone());
+                    post_store
+                        .posts
+                        .insert(ctx.props().filename.clone(), post.meta.clone());
                 });
 
                 let _ = self.data.insert(post);
@@ -158,7 +174,9 @@ impl Component for Post {
     fn view(&self, ctx: &Context<Self>) -> Html {
         match &self.fetch_state {
             utils::FetchState::Complete => {
-                let content = self.data.as_ref()
+                let content = self
+                    .data
+                    .as_ref()
                     .expect("Data shouldn't be None while fetch_state is Complete");
                 let body = Html::from_html_unchecked(content.body.clone().into());
 

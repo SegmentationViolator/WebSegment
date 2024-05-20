@@ -26,13 +26,21 @@ pub fn navigation_bar() -> Html {
 
     let pages = if matches!(current_route, Route::NotFound | Route::Post { .. }) {
         html! {
-            <li><Link<Route> classes={classes!("nav-link")} to={Route::Home} > {Route::Home.to_string()} </Link<Route>></li>
+            <li><Link<Route> classes={classes!("nav-link")} to={Route::Home}> {Route::Home.to_string()} </Link<Route>></li>
         }
     } else {
         Route::DISPLAYABLE
             .iter()
             .filter(|route| &current_route != *route)
-            .map(|route| html! { <li><Link<Route> classes={classes!("nav-link")} to={route.clone()} > {route.to_string()} </Link<Route>></li> })
+            .map(|route| {
+                html! {
+                    <li>
+                        <Link<Route> classes={classes!("nav-link")} to={route.clone()}>
+                        <small> {route.to_string()} </small>
+                        </Link<Route>>
+                    </li>
+                }
+            })
             .collect::<Html>()
     };
 

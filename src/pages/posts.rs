@@ -17,7 +17,7 @@
 use yew::prelude::*;
 use yewdux::prelude::*;
 
-use crate::card::Card;
+use crate::{card::Card, utils, Route};
 
 use super::post::PostStore;
 
@@ -29,14 +29,14 @@ pub fn Posts() -> Html {
         html!(
             <Card
                 title={meta.title.clone()}
-                url={format!("/post/{filename}")}
+                url={utils::Url::Internal(Route::Post { filename: filename.to_owned() })}
                 subtext={meta.date.clone()}
             />
         )
     });
 
     if cards.len() == 0 {
-       return html!(<p>{"Nothing to see here...yet."}</p>)
+        return html!(<p>{"Nothing to see here...yet."}</p>);
     }
 
     html!(

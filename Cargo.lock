@@ -1688,7 +1688,7 @@ checksum = "7ab9b36309365056cd639da3134bf87fa8f3d86008abf99e612384a6eecd459f"
 
 [[package]]
 name = "web-segment"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "gloo-timers 0.3.0",
  "markdown",

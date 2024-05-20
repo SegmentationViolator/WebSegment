@@ -55,7 +55,7 @@ impl Project {
         html!(
             <Card
                 title={title}
-                url={url}
+                url={utils::Url::External(url)}
                 image_url={image_url}
             />
         )
@@ -86,7 +86,7 @@ impl Component for Projects {
         match msg {
             utils::Message::FetchData => {
                 ctx.link().send_future(async {
-                   let projects: Vec<Project> = match reqwest::get(format!(
+                    let projects: Vec<Project> = match reqwest::get(format!(
                         "https://api.github.com/users/{GITHUB_USERNAME}/starred"
                     ))
                     .await
