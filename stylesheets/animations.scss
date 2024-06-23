@@ -1,3 +1,5 @@
+@use "colors";
+
 .fade {
     animation: Fade 1s ease;
 }
@@ -26,6 +28,7 @@
 
 #Splash {
     align-items: center;
+    color: colors.$primary;
     display: flex;
     height: 100svh;
     justify-content: center;

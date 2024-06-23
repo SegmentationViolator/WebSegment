@@ -15,30 +15,26 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use yew::prelude::*;
-use yew_router::prelude::*;
 
-use crate::indent::Indent;
-use crate::Route;
+use crate::hi::Hi;
 
 pub fn home() -> Html {
     html! {
         <>
-            <p>{"I am,"}</p><br/>
+            <Hi />
+            <p style="font-size: 1.6rem; text-align: center;">
+                {"I am SegV, a hobbyist programmer."}
+            </p>
+            <br/><br/><br/><br/>
 
-            <h3>{"Segmentation Violator"}</h3><br/>
+            <p style="text-align: center;">
+                {"I am particularly interested in systems programming, computers graphics and game development. "}
+                {"I consider my expertise level to be intermediate and have a lot to learn."}
+            </p>
+            <br/><br/>
 
-            <p>
-                <Indent width=4 />
-                {"I am a hobbyist programmer, my interests in the field of programming are systems programming, graphics programming and web development. "}
-                {"I like making software that I find interesting."}
-            </p><br/>
-
-            <p>
-                <Indent width=4 />
-                {"The projects I have worked on include Discord bots, an emulator, a programming language and a text editor. I have listed some of my projects "}
-                <Link<Route> to={Route::Projects}>{"here"}</Link<Route>>
-                {" and links to my profiles on various platforms and my E-mail "}
-                <Link<Route> to={Route::Links}>{"here"}</Link<Route>>
+            <p style="text-align: center;">
+                {"I hope you like your experience on this webiste :3"}
             </p>
         </>
     }

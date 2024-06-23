@@ -1,7 +1,7 @@
 @use "colors";
 
 .status {
-    background: var(--primary);
+    background: colors.$primary;
     display: block;
     padding: 1em;
 
@@ -11,5 +11,5 @@
 }
 
 .error {
-    background: var(--error);
+    background: colors.$error;
 }

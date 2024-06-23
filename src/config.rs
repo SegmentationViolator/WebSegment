@@ -1,4 +1,4 @@
 pub const EMAIL: &str = "segmentationviolator@proton.me";
 pub const GITHUB_USERNAME: &str = "SegmentationViolator";
 pub const REPOSITORY_NAME: &str = "WebSegment";
-pub const NAME: &str = "Web Segment";
+pub const TITLE: &str = "Web Segment";

@@ -22,11 +22,10 @@ use yew_router::prelude::*;
 mod card;
 mod config;
 mod footer;
-mod indent;
+mod hi;
 mod navigation_bar;
 mod pages;
 
-// mod background_animation;
 mod utils;
 
 use footer::Footer;
@@ -36,8 +35,6 @@ use navigation_bar::NavigationBar;
 enum Route {
     #[at("/")]
     Home,
-    #[at("/links")]
-    Links,
     #[not_found]
     #[at("/404.html")]
     NotFound,
@@ -50,7 +47,7 @@ enum Route {
 }
 
 impl Route {
-    pub const DISPLAYABLE: [Self; 4] = [Self::Home, Self::Links, Self::Projects, Self::Posts];
+    pub const DISPLAYABLE: &'static [Self] = &[Self::Home, Self::Projects, Self::Posts];
 }
 
 impl fmt::Display for Route {
@@ -64,9 +61,6 @@ fn app() -> Html {
     let splashed = yew::use_state_eq(|| false);
 
     if *splashed {
-        // #[cfg(feature = "snowfall")]
-        // background_animation::snowfall::initiate("Canvas".to_string());
-
         return yew::html! {
             <>
                 <div id="App">
@@ -78,7 +72,6 @@ fn app() -> Html {
                         <Footer />
                     </BrowserRouter>
                 </div>
-                // <canvas id="Canvas"></canvas>
             </>
         };
     }
@@ -91,9 +84,8 @@ fn app() -> Html {
     yew::html! {
         <>
             <div id="Splash">
-                <h1 id="Splash-inner">{ config::NAME }</h1>
+                <h1 id="Splash-inner">{ config::TITLE }</h1>
             </div>
-            // <canvas id="Canvas"></canvas>
         </>
     }
 }
@@ -109,7 +101,6 @@ fn switch(route: Route) -> Html {
 
     match route {
         Route::Home => pages::home(),
-        Route::Links => pages::links(),
         Route::NotFound => pages::not_found(),
         Route::Post { filename } => pages::post(filename),
         Route::Posts => pages::posts(),

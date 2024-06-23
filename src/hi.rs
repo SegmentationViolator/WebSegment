@@ -16,23 +16,10 @@
 
 use yew::prelude::*;
 
-use crate::config::{EMAIL, GITHUB_USERNAME};
-
-pub fn links() -> Html {
+#[function_component(Hi)]
+pub fn hi() -> Html {
     html! {
-        <ul>
-            <li>
-                <p>
-                    <a href={format!("https://github.com/{GITHUB_USERNAME}/")}>{GITHUB_USERNAME}</a>
-                    <sup>{"[GitHub]"}</sup>
-                </p>
-            </li>
-            <li>
-                <p>
-                    {EMAIL}
-                    <sup>{"[E-mail]"}</sup>
-                </p>
-            </li>
-        </ul>
+        <div class={classes!("hi")}>
+        </div>
     }
 }

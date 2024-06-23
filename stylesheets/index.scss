@@ -4,6 +4,7 @@
 @use "colors";
 @use "effects";
 @use "footer";
+@use "hi";
 @use "navigation-bar";
 @use "not-found";
 @use "post";
@@ -11,14 +12,7 @@
 @use "themed";
 
 * {
-    --primary: #2832c2;
-    --error: #c22828;
     margin: 0;
-
-    @media (prefers-color-scheme: dark) {
-        --primary: #82eefd;
-        --error: #fd8282;
-    }
 }
 
 html {
@@ -37,12 +31,15 @@ html {
 }
 
 p {
-    font-size: max(1em, 1vmax);
     hyphens: auto;
     line-break: loose;
 
     a {
-        color: var(--primary);
+        color: #2832c2 !important;
+
+        @media (prefers-color-scheme: dark) {
+            color: #82eefd !important;
+        }
     }
 }
 
@@ -51,7 +48,7 @@ sup a {
 }
 
 svg {
-    fill: var(--primary);
+    fill: colors.$primary;
     height: 1em;
     width: 1em;
 }

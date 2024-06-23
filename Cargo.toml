@@ -22,11 +22,10 @@ yewdux = "0.10"
 [dependencies.web-sys]
 version = "0.3.61"
 features = [
-    # "CanvasRenderingContext2d",
-    # "CssStyleDeclaration",
+    "CanvasRenderingContext2d",
     "Document",
     "Element",
-    # "HtmlCanvasElement",
+    "HtmlCanvasElement",
     "Location",
     "Window",
 ]

@@ -1,0 +1,11 @@
+.hi {
+    width: 100vw;
+    height: 25vh;
+    background-image: url("/assets/hi_light.gif");
+    background-position: center;
+    background-repeat: no-repeat;
+
+    @media (prefers-color-scheme: dark) {
+        background-image: url("/assets/hi_dark.gif");
+    }
+}
