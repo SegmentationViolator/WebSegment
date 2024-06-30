@@ -25,17 +25,12 @@ pub fn home() -> Html {
             <p style="font-size: 1.6rem; text-align: center;">
                 {"I am SegV, a hobbyist programmer."}
             </p>
-            <br/><br/><br/><br/>
-
+            <br/>
             <p style="text-align: center;">
                 {"I am particularly interested in systems programming, computers graphics and game development. "}
                 {"I consider my expertise level to be intermediate and have a lot to learn."}
             </p>
             <br/><br/>
-
-            <p style="text-align: center;">
-                {"I hope you like your experience on this webiste :3"}
-            </p>
         </>
     }
 }

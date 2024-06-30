@@ -35,22 +35,16 @@ p {
     line-break: loose;
 
     a {
-        color: #2832c2 !important;
+        color: colors.$secondary-light !important;
 
         @media (prefers-color-scheme: dark) {
-            color: #82eefd !important;
+            color: colors.$secondary-dark !important;
         }
     }
 }
 
 sup a {
     text-decoration-line: none;
-}
-
-svg {
-    fill: colors.$primary;
-    height: 1em;
-    width: 1em;
 }
 
 #App {
@@ -70,4 +64,10 @@ svg {
 .body {
     flex-grow: 1;
     padding: 1em 1em 1em 1em;
+}
+
+.seperator {
+    color: colors.$primary;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
 }

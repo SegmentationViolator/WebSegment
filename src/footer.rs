@@ -16,7 +16,7 @@
 
 use yew::prelude::*;
 
-use crate::config::{GITHUB_USERNAME, REPOSITORY_NAME};
+use crate::config::{EMAIL, GITHUB_USERNAME, REPOSITORY_NAME};
 
 #[function_component(Footer)]
 pub fn footer() -> Html {
@@ -24,7 +24,17 @@ pub fn footer() -> Html {
         <div class={classes!("footer")}>
             <p>
                 {"Made with "}
-                <a href="https://yew.rs/">{"Yew"}</a>
+                <span style="white-space:nowrap">
+                    <a href="https://yew.rs/">{"Yew"}</a>
+                    <span class="seperator">{"|"}</span>
+                    <a href={format!("https://github.com/{GITHUB_USERNAME}")}>
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                    <span class="seperator">{"|"}</span>
+                    <a href={format!("mailto:{EMAIL}")}>
+                        <i class="fa-solid fa-envelope"></i>
+                    </a>
+                </span>
             </p>
             <a href={format!("https://github.com/{GITHUB_USERNAME}/{REPOSITORY_NAME}")}>{"Source Code"}</a>
         </div>

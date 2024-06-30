@@ -14,38 +14,129 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+use serde::Deserialize;
 use yew::prelude::*;
-use yewdux::prelude::*;
 
 use crate::{card::Card, utils, Route};
 
-use super::post::PostStore;
+#[derive(Deserialize)]
+struct Post {
+    title: String,
+    date: String,
+    filename: String,
+}
 
-#[function_component]
-pub fn Posts() -> Html {
-    let post_store = use_store_value::<PostStore>();
+struct PostList {
+    posts: Vec<Post>,
+    fetch_state: utils::FetchState,
+}
 
-    let cards = post_store.posts.iter().map(|(filename, meta)| {
-        html!(
-            <Card
-                title={meta.title.clone()}
-                url={utils::Url::Internal(Route::Post { filename: filename.to_owned() })}
-                subtext={meta.date.clone()}
-            />
-        )
-    });
+impl Component for PostList {
+    type Message = utils::Message<Vec<Post>>;
+    type Properties = ();
 
-    if cards.len() == 0 {
-        return html!(<p>{"Nothing to see here...yet."}</p>);
+    fn create(_ctx: &Context<Self>) -> Self {
+        Self {
+            posts: Vec::new(),
+            fetch_state: utils::FetchState::Pending,
+        }
     }
 
-    html!(
-        <div class={classes!("card-grid")}>
-            {cards.collect::<Html>()}
-        </div>
-    )
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            utils::Message::FetchData => {
+                ctx.link().send_future(async move {
+                    let base = web_sys::window().unwrap().location().origin().unwrap();
+
+                    let posts = match reqwest::get(format!("{base}/posts.json"))
+                        .await
+                        .and_then(|response| response.error_for_status())
+                    {
+                        Err(error) => {
+                            if let Some(reqwest::StatusCode::NOT_FOUND) = error.status() {
+                                return utils::Message::SetContent(Vec::new());
+                            }
+
+                            return utils::Message::SetState(utils::FetchState::Error(
+                                error.to_string(),
+                            ));
+                        }
+                        Ok(response) => match response.text().await {
+                            Err(error) => {
+                                return utils::Message::SetState(utils::FetchState::Error(
+                                    error.to_string(),
+                                ))
+                            }
+                            Ok(text) => {
+                                match serde_json::from_str(&text) {
+                                    Err(error) => {
+                                        return utils::Message::SetState(utils::FetchState::Error(
+                                            error.to_string(),
+                                        ))
+                                    }
+                                    Ok(posts) => posts,
+                                }
+                            }
+                        },
+                    };
+
+                    utils::Message::SetContent(posts)
+                });
+
+                self.fetch_state = utils::FetchState::Ongoing;
+                true
+            }
+            utils::Message::SetContent(posts) => {
+                self.posts = posts;
+
+                self.fetch_state = utils::FetchState::Complete;
+                true
+            }
+            utils::Message::SetState(state) => {
+                self.fetch_state = state;
+                true
+            }
+        }
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        match &self.fetch_state {
+            utils::FetchState::Complete => {
+                let cards = self.posts.iter().map(|post| {
+                    html!(
+                        <Card
+                            title={post.title.clone()}
+                            url={utils::Url::Internal(Route::Post { filename: post.filename.clone() })}
+                            subtext={post.date.clone()}
+                        />
+                    )
+                });
+
+                if cards.len() == 0 {
+                    return html!(<p>{"Nothing to see here."}</p>);
+                }
+
+                html!(
+                    <div class={classes!("card-grid")}>
+                        {cards.collect::<Html>()}
+                    </div>
+                )
+            }
+            utils::FetchState::Error(error_message) => {
+                html!( <p class={classes!("status", "error")}>{error_message}</p> )
+            }
+            utils::FetchState::Ongoing => {
+                html!( <p class={classes!("status")}>{"Fetching..."}</p> )
+            }
+            utils::FetchState::Pending => {
+                ctx.link().send_message(utils::Message::FetchData);
+                html!()
+            }
+            _ => unreachable!() // FetchState::NotFound is never set as fetch_state
+        }
+    }
 }
 
 pub fn posts() -> Html {
-    html!(<Posts />)
+    html!(<PostList />)
 }

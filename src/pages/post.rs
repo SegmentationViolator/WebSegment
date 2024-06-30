@@ -14,38 +14,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use std::collections;
-
-use serde::Deserialize;
-use serde::Serialize;
 use yew::prelude::*;
 use yew_router::prelude::*;
-use yewdux::prelude::*;
 
 use crate::utils;
 use crate::Route;
 
-pub struct Post {
-    data: Option<PostData>,
-    dispatch: Dispatch<PostStore>,
+pub struct PostView {
+    body: Option<String>,
     fetch_state: utils::FetchState,
-}
-
-#[derive(Clone, Default, PartialEq, Store, Deserialize, Serialize)]
-pub struct PostMeta {
-    pub date: String,
-    pub title: String,
-}
-
-pub struct PostData {
-    body: String,
-    meta: PostMeta,
-}
-
-#[derive(Clone, Default, PartialEq, Store, Deserialize, Serialize)]
-#[store(storage = "local", storage_tab_sync)]
-pub struct PostStore {
-    pub posts: collections::HashMap<String, PostMeta>,
 }
 
 #[derive(PartialEq, Properties)]
@@ -53,16 +30,13 @@ pub struct Props {
     pub filename: String,
 }
 
-impl Component for Post {
-    type Message = utils::Message<PostData>;
+impl Component for PostView {
+    type Message = utils::Message<String>;
     type Properties = Props;
 
     fn create(_ctx: &Context<Self>) -> Self {
-        let dispatch = Dispatch::<PostStore>::global();
-
         Self {
-            data: None,
-            dispatch,
+            body: None,
             fetch_state: utils::FetchState::Pending,
         }
     }
@@ -95,24 +69,7 @@ impl Component for Post {
                                 ))
                             }
                             Ok(text) => {
-                                let (title, date, text) = {
-                                    let mut lines = text.split_inclusive('\n');
-
-                                    let Some(title) = lines.next() else {
-                                        return utils::Message::SetState(utils::FetchState::Error(
-                                            "Post file is empty.".to_string(),
-                                        ));
-                                    };
-
-                                    let date = lines.next().unwrap_or("Unknown Date");
-
-                                    (
-                                        title.trim().to_string(),
-                                        date.trim().to_string(),
-                                        lines.collect::<String>(),
-                                    )
-                                };
-                                let body = markdown::to_html_with_options(
+                                markdown::to_html_with_options(
                                     &text,
                                     &markdown::Options {
                                         compile: markdown::CompileOptions {
@@ -130,12 +87,7 @@ impl Component for Post {
                                         }
                                     },
                                 )
-                                .expect("Without MDX enabled, there should be no errors");
-
-                                PostData {
-                                    body,
-                                    meta: PostMeta { date, title },
-                                }
+                                .expect("Without MDX enabled, there should be no errors")
                             }
                         },
                     };
@@ -147,24 +99,12 @@ impl Component for Post {
                 true
             }
             utils::Message::SetContent(post) => {
-                self.dispatch.reduce_mut(|post_store| {
-                    post_store
-                        .posts
-                        .insert(ctx.props().filename.clone(), post.meta.clone());
-                });
-
-                let _ = self.data.insert(post);
+                let _ = self.body.insert(post);
 
                 self.fetch_state = utils::FetchState::Complete;
                 true
             }
             utils::Message::SetState(state) => {
-                if matches!(state, utils::FetchState::NotFound) {
-                    self.dispatch.reduce_mut(|content_store| {
-                        content_store.posts.remove(&ctx.props().filename);
-                    });
-                }
-
                 self.fetch_state = state;
                 true
             }
@@ -174,19 +114,15 @@ impl Component for Post {
     fn view(&self, ctx: &Context<Self>) -> Html {
         match &self.fetch_state {
             utils::FetchState::Complete => {
-                let content = self
-                    .data
+                let html = self
+                    .body
                     .as_ref()
                     .expect("Data shouldn't be None while fetch_state is Complete");
-                let body = Html::from_html_unchecked(content.body.clone().into());
+                let body = Html::from_html_unchecked(html.clone().into());
 
                 html!(
                     <>
                         <div class={classes!("post")}>
-                            <h1>{content.meta.title.clone()}</h1>
-                            <small>{content.meta.date.clone()}</small>
-                            <br/>
-                            <br/>
                             {body}
                         </div>
                     </>
@@ -206,6 +142,7 @@ impl Component for Post {
         }
     }
 }
+
 pub fn post(filename: String) -> Html {
-    html!(<Post filename={filename}/>)
+    html!(<PostView filename={filename}/>)
 }

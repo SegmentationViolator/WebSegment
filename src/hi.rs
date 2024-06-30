@@ -19,7 +19,7 @@ use yew::prelude::*;
 #[function_component(Hi)]
 pub fn hi() -> Html {
     html! {
-        <div class={classes!("hi")}>
-        </div>
+            <div class={classes!("hi")}>
+            </div>
     }
 }
