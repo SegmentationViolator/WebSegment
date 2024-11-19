@@ -14,29 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use yew::prelude::*;
+use crate::config;
 
-use crate::config::{EMAIL, GITHUB_USERNAME, REPOSITORY_NAME};
-
-#[function_component(Footer)]
-pub fn footer() -> Html {
-    html! {
-        <div class={classes!("footer")}>
+#[yew::function_component(Footer)]
+pub fn footer() -> yew::Html {
+    yew::html! {
+        <div class={yew::classes!("footer")}>
             <p>
                 {"Made with "}
-                <span style="white-space:nowrap">
+                <span style="white-space: nowrap;">
                     <a href="https://yew.rs/">{"Yew"}</a>
                     <span class="seperator">{"|"}</span>
-                    <a href={format!("https://github.com/{GITHUB_USERNAME}")}>
+                    <a href={format!("https://github.com/{}", config::GITHUB_USERNAME)}>
                         <i class="fa-brands fa-github"></i>
                     </a>
                     <span class="seperator">{"|"}</span>
-                    <a href={format!("mailto:{EMAIL}")}>
+                    <a href={format!("mailto:{}", config::EMAIL)}>
                         <i class="fa-solid fa-envelope"></i>
                     </a>
                 </span>
             </p>
-            <a href={format!("https://github.com/{GITHUB_USERNAME}/{REPOSITORY_NAME}")}>{"Source Code"}</a>
+            <a href={format!("https://github.com/{}/{}", config::GITHUB_USERNAME, config::REPOSITORY_NAME)}>{"Source Code"}</a>
         </div>
     }
 }

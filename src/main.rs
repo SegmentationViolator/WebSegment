@@ -16,15 +16,14 @@
 
 use std::fmt;
 
-use yew::prelude::*;
-use yew_router::prelude::*;
+use yew_router::{BrowserRouter, Routable, Switch};
 
 mod card;
 mod config;
 mod footer;
-mod hi;
 mod navigation_bar;
 mod pages;
+mod title;
 
 mod utils;
 
@@ -47,7 +46,7 @@ enum Route {
 }
 
 impl Route {
-    pub const DISPLAYABLE: &'static [Self] = &[Self::Home, Self::Projects, Self::Posts];
+    pub const DISPLAYABLE: &'static [Self] = &[Self::Projects, Self::Posts];
 }
 
 impl fmt::Display for Route {
@@ -56,11 +55,24 @@ impl fmt::Display for Route {
     }
 }
 
-#[function_component(App)]
-fn app() -> Html {
-    let splashed = yew::use_state_eq(|| false);
+#[yew::function_component(App)]
+fn app() -> yew::Html {
+    let splashed = yew_hooks::use_bool_toggle(false);
+
+    let timeout = {
+        let splashed = splashed.clone();
+
+        yew_hooks::use_timeout(
+            move || {
+                splashed.toggle();
+            },
+            800,
+        )
+    };
 
     if *splashed {
+        timeout.cancel();
+
         return yew::html! {
             <>
                 <div id="App">
@@ -76,11 +88,6 @@ fn app() -> Html {
         };
     }
 
-    let timeout = gloo_timers::callback::Timeout::new(800, move || {
-        splashed.set(true);
-    });
-    timeout.forget();
-
     yew::html! {
         <>
             <div id="Splash">
@@ -90,7 +97,7 @@ fn app() -> Html {
     }
 }
 
-fn switch(route: Route) -> Html {
+fn switch(route: Route) -> yew::Html {
     let document = web_sys::window().unwrap().document().unwrap();
     let app = document.get_element_by_id("App").unwrap();
 

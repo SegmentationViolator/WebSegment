@@ -2,14 +2,15 @@
 @use "themed";
 
 .card {
-    @include themed.themed(
-        colors.$foreground,
-        change-color($color: colors.$background, $blackness: 10%),
-    );
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: 2em;
+
+    @include themed.themed(
+        colors.$foreground,
+        change-color($color: colors.$background, $blackness: 10%),
+    );
 
     @media (prefers-color-scheme: dark) {
         @include themed.themed(

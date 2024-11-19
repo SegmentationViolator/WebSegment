@@ -14,45 +14,42 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>
 
-use yew::prelude::*;
-use yewdux::prelude::*;
+use web_sys::js_sys::Date;
 
 use serde::Deserialize;
 
 use crate::card::Card;
-use crate::config::GITHUB_USERNAME;
-use crate::utils;
+use crate::title::Title;
+use crate::{config, utils};
 
 #[derive(PartialEq, Deserialize)]
-pub struct Project {
+struct Project {
     full_name: String,
     html_url: String,
     name: String,
-
-    #[serde(skip_deserializing)]
-    uuid: uuid::Uuid,
 }
 
-pub struct Projects {
-    dispatch: Dispatch<ProjectStore>,
+struct Projects {
+    dispatch: yewdux::Dispatch<ProjectStore>,
     fetch_state: utils::FetchState,
 }
 
-#[derive(Default, PartialEq, Store)]
+#[derive(Default, PartialEq, yewdux::Store)]
 struct ProjectStore {
     projects: Vec<Project>,
 }
 
 impl Project {
-    fn to_card(&self) -> Html {
+    fn to_card(&self) -> yew::Html {
         let image_url = format!(
             "https://opengraph.githubassets.com/{}/{}",
-            self.uuid, self.full_name,
+            Date::now() as u64 / (1000 * 60 * 5),
+            self.full_name,
         );
         let title = self.name.clone();
         let url = self.html_url.clone();
 
-        html!(
+        yew::html!(
             <Card
                 title={title}
                 url={utils::Url::External(url)}
@@ -62,12 +59,12 @@ impl Project {
     }
 }
 
-impl Component for Projects {
+impl yew::Component for Projects {
     type Message = utils::Message<Vec<Project>>;
     type Properties = ();
 
-    fn create(_ctx: &Context<Self>) -> Self {
-        let dispatch = Dispatch::<ProjectStore>::global();
+    fn create(_ctx: &yew::Context<Self>) -> Self {
+        let dispatch = yewdux::Dispatch::<ProjectStore>::global();
         let project_store = dispatch.get();
 
         let fetch_state = if project_store.projects.is_empty() {
@@ -82,12 +79,13 @@ impl Component for Projects {
         }
     }
 
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, ctx: &yew::Context<Self>, msg: Self::Message) -> bool {
         match msg {
             utils::Message::FetchData => {
                 ctx.link().send_future(async {
                     let projects: Vec<Project> = match reqwest::get(format!(
-                        "https://api.github.com/users/{GITHUB_USERNAME}/starred"
+                        "https://api.github.com/users/{}/starred",
+                        config::GITHUB_USERNAME
                     ))
                     .await
                     .and_then(|response| response.error_for_status())
@@ -119,14 +117,11 @@ impl Component for Projects {
                                         let owner_name =
                                             project.full_name.split('/').next().unwrap();
 
-                                        if owner_name != GITHUB_USERNAME {
+                                        if owner_name != config::GITHUB_USERNAME {
                                             return None;
                                         }
 
-                                        Some(Project {
-                                            uuid: uuid::Uuid::new_v4(),
-                                            ..project
-                                        })
+                                        Some(project)
                                     })
                                     .collect(),
                             }
@@ -153,7 +148,7 @@ impl Component for Projects {
         }
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
+    fn view(&self, ctx: &yew::Context<Self>) -> yew::Html {
         match &self.fetch_state {
             utils::FetchState::Complete => {
                 let project_store = self.dispatch.get();
@@ -163,27 +158,40 @@ impl Component for Projects {
                     .iter()
                     .map(|project| project.to_card());
 
-                html! {
-                    <div class={classes!("card-grid")}>
-                        { for cards }
-                    </div>
+                yew::html! {
+                    <>
+                        <Title text="Projects" />
+                        <div class={yew::classes!("card-grid")}>
+                            { for cards }
+                        </div>
+                    </>
                 }
             }
             utils::FetchState::Error(error_message) => {
-                html!( <p class={classes!("status", "error")}>{error_message}</p> )
+                yew::html! {
+                    <>
+                        <Title text="Projects" />
+                        <p class={yew::classes!("status", "error")}>{error_message}</p>
+                    </>
+                }
             }
             utils::FetchState::Ongoing => {
-                html! ( <p class={classes!("status")}>{"Fetching..."}</p> )
+                yew::html! {
+                    <>
+                        <Title text="Projects" />
+                        <p class={yew::classes!("status")}>{"Fetching..."}</p>
+                    </>
+                }
             }
             utils::FetchState::Pending => {
                 ctx.link().send_message(utils::Message::FetchData);
-                html!()
+                yew::html!(<Title text="Projects" />)
             }
             _ => unreachable!(),
         }
     }
 }
 
-pub fn projects() -> Html {
-    html!( <Projects /> )
+pub fn projects() -> yew::Html {
+    yew::html!( <Projects /> )
 }

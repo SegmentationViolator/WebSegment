@@ -1,3 +1,5 @@
+@use "colors";
+
 .nav-bar {
     align-items: center;
     border-bottom: 0.2em solid;
@@ -6,11 +8,20 @@
     padding: 1em;
 
     .nav-head {
+        cursor:  pointer;
         font-family: "Space Mono", monospace;
     }
 
     .nav-link {
         text-decoration-line: none;
+
+        &.active {
+            color: colors.$secondary-light;
+
+            @media (prefers-color-scheme: dark) {
+                color: colors.$secondary-dark;
+            }
+        }
     }
 
     .nav-links {

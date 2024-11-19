@@ -4,9 +4,7 @@
 @use "colors";
 @use "effects";
 @use "footer";
-@use "hi";
 @use "navigation-bar";
-@use "not-found";
 @use "post";
 @use "status";
 @use "themed";
@@ -16,11 +14,12 @@
 }
 
 html {
+    font-family: "IBM Plex Mono", monospace;
+
     @include themed.themed(
         colors.$foreground,
         colors.$background,
     );
-    font-family: "IBM Plex Mono", monospace;
 
     @media (prefers-color-scheme: dark) {
         @include themed.themed(
@@ -53,21 +52,7 @@ sup a {
     flex-direction: column;
 }
 
-// #Canvas {
-//    position: absolute;
-//    top: 0px;
-//    pointer-events: none;
-//    height: 100svh;
-//    width: 100svw;
-// }
-
 .body {
     flex-grow: 1;
     padding: 1em 1em 1em 1em;
-}
-
-.seperator {
-    color: colors.$primary;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
 }

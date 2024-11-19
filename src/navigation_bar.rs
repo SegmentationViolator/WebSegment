@@ -14,42 +14,41 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use yew::prelude::*;
-use yew_router::prelude::*;
+use yew::classes;
+use yew_router::components::Link;
 
-use crate::config::TITLE;
+use crate::config;
 use crate::Route;
 
-#[function_component(NavigationBar)]
-pub fn navigation_bar() -> Html {
-    let current_route: Route = use_route().unwrap();
+#[yew::function_component(NavigationBar)]
+pub fn navigation_bar() -> yew::Html {
+    let current_route: Route = yew_router::hooks::use_route().unwrap();
+    let navigator = yew_router::hooks::use_navigator().unwrap();
 
-    let pages = if matches!(current_route, Route::NotFound | Route::Post { .. }) {
-        html! {
-            <li><Link<Route> classes={classes!("nav-link")} to={Route::Home}> {Route::Home.to_string()} </Link<Route>></li>
-        }
-    } else {
-        Route::DISPLAYABLE
-            .iter()
-            .filter(|route| &current_route != *route)
-            .map(|route| {
-                html! {
-                    <li>
-                        <Link<Route> classes={classes!("nav-link")} to={route.clone()}>
+    let pages = Route::DISPLAYABLE
+        .iter()
+        .map(|route| {
+            let mut classes = classes!("nav-link");
+            if current_route == *route {
+                classes.push("active");
+            }
+
+            yew::html! {
+                <li>
+                    <Link<Route> classes={classes} to={route.clone()}>
                         <small> {route.to_string()} </small>
-                        </Link<Route>>
-                    </li>
-                }
-            })
-            .collect::<Html>()
-    };
+                    </Link<Route>>
+                </li>
+            }
+        })
+        .collect::<yew::Html>();
 
-    html! {
-        <div class={classes!("nav-bar")}>
-            <h2 class={classes!("nav-head")}>
-                {TITLE}
+    yew::html! {
+        <div class={yew::classes!("nav-bar")}>
+            <h2 onclick={move |_| { navigator.push(&Route::Home); } }  class={yew::classes!("nav-head")}>
+                { config::TITLE }
             </h2>
-            <ui class={classes!("nav-links")}>
+            <ui class={yew::classes!("nav-links")}>
                 { pages }
             </ui>
         </div>

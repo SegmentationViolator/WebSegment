@@ -9,8 +9,4 @@
             color: change-color($color: $foreground, $lightness: 45%,);
         }
     }
-
-    span {
-        background: $background;
-    }
 }

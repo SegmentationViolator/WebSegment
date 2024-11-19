@@ -2,16 +2,23 @@
 @use "themed";
 
 .footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5em;
+
+
+    .seperator {
+        color: colors.$primary;
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+    }
+
     @media (prefers-color-scheme: dark) {
         @include themed.themed(
             colors.$foreground,
             colors.$background,
         );
     }
-
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5em;
 
     @media (prefers-color-scheme: dark) {
         @include themed.themed(

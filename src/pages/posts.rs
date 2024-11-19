@@ -15,9 +15,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use serde::Deserialize;
-use yew::prelude::*;
 
-use crate::{card::Card, utils, Route};
+use crate::card::Card;
+use crate::title::Title;
+use crate::utils;
+use crate::Route;
 
 #[derive(Deserialize)]
 struct Post {
@@ -31,18 +33,18 @@ struct PostList {
     fetch_state: utils::FetchState,
 }
 
-impl Component for PostList {
+impl yew::Component for PostList {
     type Message = utils::Message<Vec<Post>>;
     type Properties = ();
 
-    fn create(_ctx: &Context<Self>) -> Self {
+    fn create(_ctx: &yew::Context<Self>) -> Self {
         Self {
             posts: Vec::new(),
             fetch_state: utils::FetchState::Pending,
         }
     }
 
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, ctx: &yew::Context<Self>, msg: Self::Message) -> bool {
         match msg {
             utils::Message::FetchData => {
                 ctx.link().send_future(async move {
@@ -67,16 +69,14 @@ impl Component for PostList {
                                     error.to_string(),
                                 ))
                             }
-                            Ok(text) => {
-                                match serde_json::from_str(&text) {
-                                    Err(error) => {
-                                        return utils::Message::SetState(utils::FetchState::Error(
-                                            error.to_string(),
-                                        ))
-                                    }
-                                    Ok(posts) => posts,
+                            Ok(text) => match serde_json::from_str(&text) {
+                                Err(error) => {
+                                    return utils::Message::SetState(utils::FetchState::Error(
+                                        error.to_string(),
+                                    ))
                                 }
-                            }
+                                Ok(posts) => posts,
+                            },
                         },
                     };
 
@@ -99,11 +99,11 @@ impl Component for PostList {
         }
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
+    fn view(&self, ctx: &yew::Context<Self>) -> yew::Html {
         match &self.fetch_state {
             utils::FetchState::Complete => {
                 let cards = self.posts.iter().map(|post| {
-                    html!(
+                    yew::html!(
                         <Card
                             title={post.title.clone()}
                             url={utils::Url::Internal(Route::Post { filename: post.filename.clone() })}
@@ -113,30 +113,48 @@ impl Component for PostList {
                 });
 
                 if cards.len() == 0 {
-                    return html!(<p>{"Nothing to see here."}</p>);
+                    return yew::html! {
+                        <>
+                            <Title text="Posts" />
+                            <p>{"Nothing to see here."}</p>
+                        </>
+                    };
                 }
 
-                html!(
-                    <div class={classes!("card-grid")}>
-                        {cards.collect::<Html>()}
-                    </div>
-                )
+                yew::html! {
+                    <>
+                        <Title text="Posts" />
+                        <div class={yew::classes!("card-grid")}>
+                            { for cards }
+                        </div>
+                    </>
+                }
             }
             utils::FetchState::Error(error_message) => {
-                html!( <p class={classes!("status", "error")}>{error_message}</p> )
+                yew::html! {
+                    <>
+                        <Title text="Posts" />
+                        <p class={yew::classes!("status", "error")}>{error_message}</p>
+                    </>
+                }
             }
             utils::FetchState::Ongoing => {
-                html!( <p class={classes!("status")}>{"Fetching..."}</p> )
+                yew::html! {
+                    <>
+                        <Title text="Posts" />
+                        <p class={yew::classes!("status")}>{"Fetching..."}</p>
+                    </>
+                }
             }
             utils::FetchState::Pending => {
                 ctx.link().send_message(utils::Message::FetchData);
-                html!()
+                yew::html!(<Title text="Posts" />)
             }
-            _ => unreachable!() // FetchState::NotFound is never set as fetch_state
+            _ => unreachable!(), // FetchState::NotFound is never set as fetch_state
         }
     }
 }
 
-pub fn posts() -> Html {
-    html!(<PostList />)
+pub fn posts() -> yew::Html {
+    yew::html!(<PostList />)
 }
