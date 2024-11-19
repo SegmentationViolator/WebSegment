@@ -29,7 +29,7 @@ struct Project {
     name: String,
 }
 
-struct Projects {
+struct ProjectList {
     dispatch: yewdux::Dispatch<ProjectStore>,
     fetch_state: utils::FetchState,
 }
@@ -59,7 +59,7 @@ impl Project {
     }
 }
 
-impl yew::Component for Projects {
+impl yew::Component for ProjectList {
     type Message = utils::Message<Vec<Project>>;
     type Properties = ();
 
@@ -193,5 +193,5 @@ impl yew::Component for Projects {
 }
 
 pub fn projects() -> yew::Html {
-    yew::html!( <Projects /> )
+    yew::html!( <ProjectList /> )
 }
