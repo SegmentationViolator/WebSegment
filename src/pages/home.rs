@@ -19,13 +19,15 @@ use crate::title::Title;
 #[stylist::yew::styled_component(Home)]
 pub fn home() -> yew::Html {
     let break_condition = stylist::yew::use_media_query("(max-width: 508px)");
-    let hi_image_url = if stylist::yew::use_media_query(
-        "(prefers-color-scheme: dark)"
-    ) { "/assets/hi_dark.gif" } else { "/assets/hi_light.gif" };
+    let hi_image_url = if stylist::yew::use_media_query("(prefers-color-scheme: dark)") {
+        "/assets/hi_dark.gif"
+    } else {
+        "/assets/hi_light.gif"
+    };
 
     yew::html! {
         <>
-            <Title text="Home" />
+            <Title title="Home" />
 
             <div
                 class={css!("width: 100%; height: 25vh; background-position: center; background-repeat: no-repeat;")}

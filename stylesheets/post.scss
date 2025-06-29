@@ -4,12 +4,14 @@
 .post {
     white-space: pre-wrap;
 
-    a {
-        color: colors.$secondary-light !important;
+    pre {
+        background: change-color($color: colors.$background, $blackness: 10%) !important;
 
         @media (prefers-color-scheme: dark) {
-            color: colors.$secondary-dark !important;
+            background: change-color($color: colors.$foreground, $whiteness: 10%) !important;
         }
+
+        padding: 1rem;
     }
 
     blockquote {

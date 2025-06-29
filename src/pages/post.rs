@@ -14,21 +14,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use wasm_bindgen::prelude::*;
+use yew_markdown::Markdown;
+use yew_router::components::Link;
 use yew_router::components::Redirect;
+use yew_router::Routable;
 
-use crate::Route;
+use crate::title::Title;
 use crate::utils;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_name = "renderMath")]
-    fn render_math();
-}
+use crate::Route;
 
 struct PostView {
     body: Option<String>,
     fetch_state: utils::FetchState,
+    filename: String,
 }
 
 #[derive(PartialEq, yew::Properties)]
@@ -37,13 +35,14 @@ struct Props {
 }
 
 impl yew::Component for PostView {
-    type Message = utils::Message<String>;
+    type Message = utils::Message<String, String>;
     type Properties = Props;
 
-    fn create(_ctx: &yew::Context<Self>) -> Self {
+    fn create(ctx: &yew::Context<Self>) -> Self {
         Self {
             body: None,
             fetch_state: utils::FetchState::Pending,
+            filename: ctx.props().filename.clone(),
         }
     }
 
@@ -74,23 +73,7 @@ impl yew::Component for PostView {
                                     error.to_string(),
                                 ))
                             }
-                            Ok(text) => markdown::to_html_with_options(&text, &markdown::Options {
-                                compile: markdown::CompileOptions {
-                                    allow_dangerous_html: true,
-                                    ..Default::default()
-                                },
-                                parse: markdown::ParseOptions {
-                                    constructs: markdown::Constructs {
-                                        gfm_strikethrough: true,
-                                        gfm_table: true,
-                                        gfm_task_list_item: true,
-                                        math_flow: true,
-                                        math_text: true,
-                                        ..Default::default()
-                                    },
-                                    ..Default::default()
-                                }
-                            }).expect("should not return Err while MDX is not enabled"),
+                            Ok(text) => text,
                         },
                     };
 
@@ -110,20 +93,50 @@ impl yew::Component for PostView {
                 self.fetch_state = state;
                 true
             }
+            utils::Message::UpdateData(filename) => {
+                self.filename = filename;
+                false
+            }
         }
     }
 
     fn view(&self, ctx: &yew::Context<Self>) -> yew::Html {
         match &self.fetch_state {
             utils::FetchState::Complete => {
+                let filename = ctx.props().filename.clone();
+
+                if self.filename != filename {
+                    let link = ctx.link();
+                    link.send_message(utils::Message::UpdateData(filename));
+                    link.send_message(utils::Message::SetState(utils::FetchState::Pending));
+                    return yew::html!(<></>)
+                }
+
                 let body = self
                     .body
-                    .as_ref()
+                    .clone()
                     .expect("body shouldn't be None while fetch_state is Complete");
-                let body = yew::Html::from_html_unchecked(body.clone().into());
+
+                let mut components = yew_markdown::CustomComponents::new();
+
+                components.register("UseTitle", |props| {
+                    let title: String = props.get_parsed("title")?;
+                    Ok(yew::html!( <Title title={title} /> ))
+                });
+                components.register("UseLink", |props| {
+                    let link: String = props.get_parsed("link")?;
+                    let text: String = props.get_parsed("text")?;
+                    let Some(route) = Route::recognize(&link) else {
+                        return Err("invalid path".into());
+                    };
+
+                    Ok(yew::html!( <Link<Route> to={route}>{text}</Link<Route>> ))
+                });
 
                 yew::html! {
-                    <div class={yew::classes!("post")}>{body}</div>
+                    <div class="post">
+                        <Markdown src={body} components={components}/>
+                    </div>
                 }
             }
             utils::FetchState::NotFound => yew::html!( <Redirect<Route> to={Route::NotFound} /> ),
@@ -135,13 +148,9 @@ impl yew::Component for PostView {
             }
             utils::FetchState::Pending => {
                 ctx.link().send_message(utils::Message::FetchData);
-                yew::html!()
+                yew::html!(<></>)
             }
         }
-    }
-
-    fn rendered(&mut self, _ctx: &yew::Context<Self>, _first_render: bool) {
-        render_math()
     }
 }
 

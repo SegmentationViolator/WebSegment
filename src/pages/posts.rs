@@ -34,12 +34,12 @@ struct PostList {
 }
 
 impl yew::Component for PostList {
-    type Message = utils::Message<Vec<Post>>;
+    type Message = utils::Message<Vec<Post>, utils::Never>;
     type Properties = ();
 
     fn create(_ctx: &yew::Context<Self>) -> Self {
         Self {
-            posts: Vec::new(),
+            posts: Vec::with_capacity(0),
             fetch_state: utils::FetchState::Pending,
         }
     }
@@ -96,12 +96,22 @@ impl yew::Component for PostList {
                 self.fetch_state = state;
                 true
             }
+            _ => unreachable!() // Message::UpdateData is never sent
         }
     }
 
     fn view(&self, ctx: &yew::Context<Self>) -> yew::Html {
         match &self.fetch_state {
             utils::FetchState::Complete => {
+                if self.posts.is_empty() {
+                    return yew::html! {
+                        <>
+                            <Title title="Posts" />
+                            <p>{"Nothing to see here."}</p>
+                        </>
+                    };
+                }
+
                 let cards = self.posts.iter().map(|post| {
                     yew::html!(
                         <Card
@@ -112,18 +122,9 @@ impl yew::Component for PostList {
                     )
                 });
 
-                if cards.len() == 0 {
-                    return yew::html! {
-                        <>
-                            <Title text="Posts" />
-                            <p>{"Nothing to see here."}</p>
-                        </>
-                    };
-                }
-
                 yew::html! {
                     <>
-                        <Title text="Posts" />
+                        <Title title="Posts" />
                         <div class={yew::classes!("card-grid")}>
                             { for cards }
                         </div>
@@ -133,7 +134,7 @@ impl yew::Component for PostList {
             utils::FetchState::Error(error_message) => {
                 yew::html! {
                     <>
-                        <Title text="Posts" />
+                        <Title title="Posts" />
                         <p class={yew::classes!("status", "error")}>{error_message}</p>
                     </>
                 }
@@ -141,14 +142,14 @@ impl yew::Component for PostList {
             utils::FetchState::Ongoing => {
                 yew::html! {
                     <>
-                        <Title text="Posts" />
+                        <Title title="Posts" />
                         <p class={yew::classes!("status")}>{"Fetching..."}</p>
                     </>
                 }
             }
             utils::FetchState::Pending => {
                 ctx.link().send_message(utils::Message::FetchData);
-                yew::html!(<Title text="Posts" />)
+                yew::html!( <Title title="Posts" /> )
             }
             _ => unreachable!(), // FetchState::NotFound is never set as fetch_state
         }

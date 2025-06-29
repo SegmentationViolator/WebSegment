@@ -20,10 +20,12 @@ use yew_router::components::Link;
 use crate::config;
 use crate::Route;
 
-#[yew::function_component(NavigationBar)]
+#[stylist::yew::styled_component(NavigationBar)]
 pub fn navigation_bar() -> yew::Html {
     let current_route: Route = yew_router::hooks::use_route().unwrap();
     let navigator = yew_router::hooks::use_navigator().unwrap();
+
+    let disabled_link = stylist::yew::use_style!("pointer-events: none;");
 
     let pages = Route::DISPLAYABLE
         .iter()
@@ -31,6 +33,7 @@ pub fn navigation_bar() -> yew::Html {
             let mut classes = classes!("nav-link");
             if current_route == *route {
                 classes.push("active");
+                classes.push(disabled_link.clone());
             }
 
             yew::html! {
@@ -43,9 +46,14 @@ pub fn navigation_bar() -> yew::Html {
         })
         .collect::<yew::Html>();
 
+    #[allow(unused_mut)]
+    let mut classes = classes!("nav-head");
+    #[cfg(feature = "pri-demon-th")] 
+    classes.push("pri-demon-th");
+
     yew::html! {
         <div class={yew::classes!("nav-bar")}>
-            <h2 onclick={move |_| { navigator.push(&Route::Home); } }  class={yew::classes!("nav-head")}>
+            <h2 onclick={move |_| { if current_route != Route::Home { navigator.push(&Route::Home); } } }  class={classes}>
                 { config::TITLE }
             </h2>
             <ui class={yew::classes!("nav-links")}>

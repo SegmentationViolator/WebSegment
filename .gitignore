@@ -1,3 +1,6 @@
-/assets
-/dist
-/target
+/assets/
+/dist/
+/files/
+/target/
+/manifest.json
+/posts.json

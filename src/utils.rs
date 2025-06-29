@@ -8,11 +8,14 @@ pub enum FetchState {
     Pending,
 }
 
-pub enum Message<T> {
+pub enum Message<T, D> {
     FetchData,
     SetContent(T),
     SetState(FetchState),
+    UpdateData(D),
 }
+
+pub enum Never {}
 
 #[derive(Clone, PartialEq)]
 pub enum Url {

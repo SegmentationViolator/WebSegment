@@ -30,13 +30,8 @@ struct Project {
 }
 
 struct ProjectList {
-    dispatch: yewdux::Dispatch<ProjectStore>,
-    fetch_state: utils::FetchState,
-}
-
-#[derive(Default, PartialEq, yewdux::Store)]
-struct ProjectStore {
     projects: Vec<Project>,
+    fetch_state: utils::FetchState,
 }
 
 impl Project {
@@ -60,22 +55,13 @@ impl Project {
 }
 
 impl yew::Component for ProjectList {
-    type Message = utils::Message<Vec<Project>>;
+    type Message = utils::Message<Vec<Project>, utils::Never>;
     type Properties = ();
 
     fn create(_ctx: &yew::Context<Self>) -> Self {
-        let dispatch = yewdux::Dispatch::<ProjectStore>::global();
-        let project_store = dispatch.get();
-
-        let fetch_state = if project_store.projects.is_empty() {
-            utils::FetchState::Pending
-        } else {
-            utils::FetchState::Complete
-        };
-
         Self {
-            dispatch,
-            fetch_state,
+            projects: Vec::with_capacity(0),
+            fetch_state: utils::FetchState::Pending,
         }
     }
 
@@ -136,7 +122,7 @@ impl yew::Component for ProjectList {
                 true
             }
             utils::Message::SetContent(projects) => {
-                self.dispatch.set(ProjectStore { projects });
+                self.projects = projects;
 
                 self.fetch_state = utils::FetchState::Complete;
                 true
@@ -145,22 +131,27 @@ impl yew::Component for ProjectList {
                 self.fetch_state = state;
                 true
             }
+            _ => unreachable!() // Message::UpdateData is never sent
         }
     }
 
     fn view(&self, ctx: &yew::Context<Self>) -> yew::Html {
         match &self.fetch_state {
             utils::FetchState::Complete => {
-                let project_store = self.dispatch.get();
+                if self.projects.is_empty() {
+                    return yew::html! {
+                        <>
+                            <Title title="Projects" />
+                            <p>{"Nothing to see here."}</p>
+                        </>
+                    };
+                }
 
-                let cards = project_store
-                    .projects
-                    .iter()
-                    .map(|project| project.to_card());
+                let cards = self.projects.iter().map(|project| project.to_card());
 
                 yew::html! {
                     <>
-                        <Title text="Projects" />
+                        <Title title="Projects" />
                         <div class={yew::classes!("card-grid")}>
                             { for cards }
                         </div>
@@ -170,7 +161,7 @@ impl yew::Component for ProjectList {
             utils::FetchState::Error(error_message) => {
                 yew::html! {
                     <>
-                        <Title text="Projects" />
+                        <Title title="Projects" />
                         <p class={yew::classes!("status", "error")}>{error_message}</p>
                     </>
                 }
@@ -178,16 +169,16 @@ impl yew::Component for ProjectList {
             utils::FetchState::Ongoing => {
                 yew::html! {
                     <>
-                        <Title text="Projects" />
+                        <Title title="Projects" />
                         <p class={yew::classes!("status")}>{"Fetching..."}</p>
                     </>
                 }
             }
             utils::FetchState::Pending => {
                 ctx.link().send_message(utils::Message::FetchData);
-                yew::html!(<Title text="Projects" />)
+                yew::html!( <Title title="Projects" /> )
             }
-            _ => unreachable!(),
+            _ => unreachable!(), // FetchState::NotFound is never set as fetch_state
         }
     }
 }
