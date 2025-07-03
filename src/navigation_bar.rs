@@ -48,8 +48,13 @@ pub fn navigation_bar() -> yew::Html {
 
     #[allow(unused_mut)]
     let mut classes = classes!("nav-head");
-    #[cfg(feature = "pri-demon-th")] 
-    classes.push("pri-demon-th");
+
+    #[cfg(feature = "pri-demon-th")]
+    classes.push(stylist::yew::use_style!(
+        "background-clip: text;\
+        background-image: linear-gradient(to top, #770088 25%, #004CFF 35%, #028121 45%, #FFEE00 55%, #FF8D00 65%, #E50000 75%);\
+        color: transparent;"
+    ));
 
     yew::html! {
         <div class={yew::classes!("nav-bar")}>

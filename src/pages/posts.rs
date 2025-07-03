@@ -50,7 +50,7 @@ impl yew::Component for PostList {
                 ctx.link().send_future(async move {
                     let base = web_sys::window().unwrap().location().origin().unwrap();
 
-                    let posts = match reqwest::get(format!("{base}/posts.json"))
+                    match reqwest::get(format!("{base}/posts.json"))
                         .await
                         .and_then(|response| response.error_for_status())
                     {
@@ -59,28 +59,19 @@ impl yew::Component for PostList {
                                 return utils::Message::SetContent(Vec::new());
                             }
 
-                            return utils::Message::SetState(utils::FetchState::Error(
+                            utils::Message::SetState(utils::FetchState::Error(
                                 error.to_string(),
-                            ));
+                            ))
                         }
-                        Ok(response) => match response.text().await {
+                        Ok(response) => match response.json().await {
                             Err(error) => {
-                                return utils::Message::SetState(utils::FetchState::Error(
+                                utils::Message::SetState(utils::FetchState::Error(
                                     error.to_string(),
                                 ))
                             }
-                            Ok(text) => match serde_json::from_str(&text) {
-                                Err(error) => {
-                                    return utils::Message::SetState(utils::FetchState::Error(
-                                        error.to_string(),
-                                    ))
-                                }
-                                Ok(posts) => posts,
-                            },
+                            Ok(posts) => utils::Message::SetContent(posts),
                         },
-                    };
-
-                    utils::Message::SetContent(posts)
+                    }
                 });
 
                 self.fetch_state = utils::FetchState::Ongoing;
@@ -96,7 +87,7 @@ impl yew::Component for PostList {
                 self.fetch_state = state;
                 true
             }
-            _ => unreachable!() // Message::UpdateData is never sent
+            _ => unreachable!(), // Message::UpdateData is never sent
         }
     }
 

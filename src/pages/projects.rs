@@ -22,10 +22,14 @@ use crate::card::Card;
 use crate::title::Title;
 use crate::{config, utils};
 
+#[derive(Deserialize)]
+struct Error {
+    detail: String,
+}
+
 #[derive(PartialEq, Deserialize)]
 struct Project {
-    full_name: String,
-    html_url: String,
+    author: String,
     name: String,
 }
 
@@ -36,17 +40,18 @@ struct ProjectList {
 
 impl Project {
     fn to_card(&self) -> yew::Html {
+        let full_name = format!("{}/{}", self.author, self.name);
+
         let image_url = format!(
             "https://opengraph.githubassets.com/{}/{}",
             Date::now() as u64 / (1000 * 60 * 5),
-            self.full_name,
+            full_name,
         );
-        let title = self.name.clone();
-        let url = self.html_url.clone();
+        let url = format!("https://github.com/{}", full_name);
 
         yew::html!(
             <Card
-                title={title}
+                title={full_name}
                 url={utils::Url::External(url)}
                 image_url={image_url}
             />
@@ -69,52 +74,43 @@ impl yew::Component for ProjectList {
         match msg {
             utils::Message::FetchData => {
                 ctx.link().send_future(async {
-                    let projects: Vec<Project> = match reqwest::get(format!(
-                        "https://api.github.com/users/{}/starred",
+                    match reqwest::get(format!(
+                        "https://pinned.berrysauce.dev/get/{}",
                         config::GITHUB_USERNAME
                     ))
                     .await
-                    .and_then(|response| response.error_for_status())
                     {
                         Err(error) => {
-                            return utils::Message::SetState(utils::FetchState::Error(
+                            utils::Message::SetState(utils::FetchState::Error(
                                 error.to_string(),
-                            ));
+                            ))
                         }
                         Ok(response) => {
-                            let result = match response.text().await {
+                            if response.status() != 200 {
+                                match response.json::<Error>().await {
+                                    Err(error) => {
+                                        return utils::Message::SetState(utils::FetchState::Error(
+                                            error.to_string(),
+                                        ));
+                                    }
+                                    Ok(error) => {
+                                        return utils::Message::SetState(utils::FetchState::Error(
+                                            error.detail,
+                                        ));
+                                    }
+                                }
+                            }
+
+                            match response.json().await {
                                 Err(error) => {
-                                    return utils::Message::SetState(utils::FetchState::Error(
+                                    utils::Message::SetState(utils::FetchState::Error(
                                         error.to_string(),
                                     ))
                                 }
-                                Ok(text) => serde_json::from_str::<Vec<Project>>(&text),
-                            };
-
-                            match result {
-                                Err(error) => {
-                                    return utils::Message::SetState(utils::FetchState::Error(
-                                        error.to_string(),
-                                    ))
-                                }
-                                Ok(projects) => projects
-                                    .into_iter()
-                                    .filter_map(|project| {
-                                        let owner_name =
-                                            project.full_name.split('/').next().unwrap();
-
-                                        if owner_name != config::GITHUB_USERNAME {
-                                            return None;
-                                        }
-
-                                        Some(project)
-                                    })
-                                    .collect(),
+                                Ok(projects) => utils::Message::SetContent(projects),
                             }
                         }
-                    };
-
-                    utils::Message::SetContent(projects)
+                    }
                 });
 
                 ctx.link()
@@ -131,7 +127,7 @@ impl yew::Component for ProjectList {
                 self.fetch_state = state;
                 true
             }
-            _ => unreachable!() // Message::UpdateData is never sent
+            _ => unreachable!(), // Message::UpdateData is never sent
         }
     }
 

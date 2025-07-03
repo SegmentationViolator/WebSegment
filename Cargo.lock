@@ -2193,11 +2193,10 @@ dependencies = [
 
 [[package]]
 name = "web-segment"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "reqwest",
  "serde",
- "serde_json",
  "stylist",
  "wasm-bindgen",
  "web-sys",

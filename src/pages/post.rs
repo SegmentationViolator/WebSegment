@@ -109,7 +109,7 @@ impl yew::Component for PostView {
                     let link = ctx.link();
                     link.send_message(utils::Message::UpdateData(filename));
                     link.send_message(utils::Message::SetState(utils::FetchState::Pending));
-                    return yew::html!(<></>)
+                    return yew::html!(<></>);
                 }
 
                 let body = self
