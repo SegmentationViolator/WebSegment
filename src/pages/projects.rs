@@ -51,7 +51,7 @@ impl Project {
 
         yew::html!(
             <Card
-                title={full_name}
+                title={self.name.clone()}
                 url={utils::Url::External(url)}
                 image_url={image_url}
             />
