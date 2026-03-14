@@ -78,7 +78,7 @@ fn app() -> yew::Html {
                 <div id="App">
                     <BrowserRouter>
                         <NavigationBar />
-                        <div class="body">
+                        <div class={yew::classes!("body")}>
                             <Switch<Route> render={switch} />
                         </div>
                         <Footer />

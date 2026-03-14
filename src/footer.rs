@@ -24,13 +24,13 @@ pub fn footer() -> yew::Html {
                 {"Made with "}
                 <span style="white-space: nowrap;">
                     <a href="https://yew.rs/">{"Yew"}</a>
-                    <span class="seperator">{"|"}</span>
+                    <span class={yew::classes!("separator")}>{"|"}</span>
                     <a href={format!("https://github.com/{}", config::GITHUB_USERNAME)}>
-                        <i class="fa-brands fa-github"></i>
+                        <i class={yew::classes!("fa-brands", "fa-github")}></i>
                     </a>
-                    <span class="seperator">{"|"}</span>
+                    <span class={yew::classes!("separator")}>{"|"}</span>
                     <a href={format!("mailto:{}", config::EMAIL)}>
-                        <i class="fa-solid fa-envelope"></i>
+                        <i class={yew::classes!("fa-solid", "fa-envelope")}></i>
                     </a>
                 </span>
             </p>

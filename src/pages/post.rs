@@ -134,7 +134,7 @@ impl yew::Component for PostView {
                 });
 
                 yew::html! {
-                    <div class="post">
+                    <div class={yew::classes!("post")}>
                         <Markdown src={body} components={components}/>
                     </div>
                 }

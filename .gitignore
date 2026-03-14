@@ -1,6 +1,6 @@
-/assets/
-/dist/
-/files/
-/target/
-/manifest.json
-/posts.json
+.direnv
+dist
+target
+
+files
+posts.json
