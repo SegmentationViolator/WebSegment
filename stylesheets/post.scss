@@ -1,3 +1,5 @@
+@use "sass:color";
+
 @use "colors";
 @use "themed";
 
@@ -5,10 +7,10 @@
     white-space: pre-wrap;
 
     pre {
-        background: change-color($color: colors.$background, $blackness: 10%) !important;
+        background:  color.change($color: colors.$background, $blackness: 10%) !important;
 
         @media (prefers-color-scheme: dark) {
-            background: change-color($color: colors.$foreground, $whiteness: 10%) !important;
+            background: color.change($color: colors.$foreground, $whiteness: 10%) !important;
         }
 
         padding: 1rem;

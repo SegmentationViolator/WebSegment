@@ -1,3 +1,5 @@
+@use "sass:color";
+
 @use "colors";
 @use "themed";
 
@@ -9,13 +11,13 @@
 
     @include themed.themed(
         colors.$foreground,
-        change-color($color: colors.$background, $blackness: 10%),
+        color.change($color: colors.$background, $blackness: 10%),
     );
 
     @media (prefers-color-scheme: dark) {
         @include themed.themed(
             colors.$background,
-            change-color($color: colors.$foreground, $whiteness: 15%),
+            color.change($color: colors.$foreground, $whiteness: 15%),
         );
     }
 

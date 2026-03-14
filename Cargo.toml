@@ -9,7 +9,7 @@ authors = ["SegmentationViolator <segmentationviolator@proton.me>"]
 reqwest = { version = "0.13", features = ["json"] }
 serde = { version = "1", features = ["derive"] }
 stylist = { version = "0.13", features = ["yew_integration"] }
-wasm-bindgen = "0.2"
+wasm-bindgen = "0.2.114"
 yew = { version = "0.21", features = ["csr"] }
 yew-hooks = "0.3"
 yew-router = "0.18"
@@ -28,7 +28,8 @@ features = [
 pri-demon-th = []
 
 [profile.release]
-strip = true
-lto = true
 codegen-units = 1
+lto = true
 opt-level = 'z'
+panic = "abort"
+strip = true

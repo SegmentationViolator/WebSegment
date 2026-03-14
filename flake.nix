@@ -68,7 +68,7 @@
                     // {
                         inherit cargoArtifacts;
                         trunkExtraBuildArgs = "--filehash=false";
-                        wasm-bindgen-cli = pkgs.wasm-bindgen-cli_0_2_100;
+                        wasm-bindgen-cli = pkgs.wasm-bindgen-cli_0_2_114;
                     }
                 );
             in
@@ -88,8 +88,10 @@
                 devShells.default = craneLib.devShell {
                     checks = self.checks.${system};
                     packages = with pkgs; [
-                        trunk
+                        binaryen
                         dart-sass
+                        trunk
+                        wasm-bindgen-cli_0_2_114
                     ];
                 };
             }
