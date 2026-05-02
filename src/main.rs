@@ -1,23 +1,8 @@
-// web segment - a personal website used to host some text files and my portfolio
-// Copyright (C) 2023  Segmentation Violator
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 use std::fmt;
 
 use yew_router::{BrowserRouter, Routable, Switch};
 
+mod callout;
 mod card;
 mod config;
 mod footer;
@@ -57,49 +42,28 @@ impl fmt::Display for Route {
 
 #[yew::function_component(App)]
 fn app() -> yew::Html {
-    let splashed = yew_hooks::use_bool_toggle(false);
-
-    let timeout = {
-        let splashed = splashed.clone();
-
-        yew_hooks::use_timeout(
-            move || {
-                splashed.toggle();
-            },
-            800,
-        )
-    };
-
-    if *splashed {
-        timeout.cancel();
-
-        return yew::html! {
-            <>
-                <div id="App">
-                    <BrowserRouter>
-                        <NavigationBar />
-                        <div class={yew::classes!("body")}>
-                            <Switch<Route> render={switch} />
-                        </div>
-                        <Footer />
-                    </BrowserRouter>
-                </div>
-            </>
-        };
-    }
-
-    yew::html! {
+    return yew::html! {
         <>
-            <div id="Splash">
-                <h1 id="Splash-inner">{ config::TITLE }</h1>
+            <div id="App">
+                <BrowserRouter>
+                    <NavigationBar />
+                    <div class={yew::classes!("body")}>
+                        <Switch<Route> render={switch} />
+                    </div>
+                    <Footer />
+                </BrowserRouter>
             </div>
         </>
-    }
+    };
 }
 
 fn switch(route: Route) -> yew::Html {
-    let document = web_sys::window().unwrap().document().unwrap();
-    let app = document.get_element_by_id("App").unwrap();
+    let app = web_sys::window()
+        .unwrap()
+        .document()
+        .unwrap()
+        .get_element_by_id("App")
+        .unwrap();
 
     match app.class_name().as_str() {
         "fade" => app.set_class_name("fade-again"),

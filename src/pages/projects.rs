@@ -1,25 +1,8 @@
-// web segment - a personal website used to host some markdown files and my portfolio
-// Copyright (C) 2023  Segmentation Violator
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>
-
 use web_sys::js_sys::Date;
 
 use serde::Deserialize;
 
 use crate::card::Card;
-use crate::title::Title;
 use crate::{config, utils};
 
 #[derive(Deserialize)]
@@ -35,7 +18,7 @@ struct Project {
 
 struct ProjectList {
     projects: Vec<Project>,
-    fetch_state: utils::FetchState,
+    fetch_state: utils::FetchState<String>,
 }
 
 impl Project {
@@ -53,14 +36,14 @@ impl Project {
             <Card
                 title={self.name.clone()}
                 url={utils::Url::External(url)}
-                image_url={image_url}
+                {image_url}
             />
         )
     }
 }
 
 impl yew::Component for ProjectList {
-    type Message = utils::Message<Vec<Project>, utils::Never>;
+    type Message = utils::Message<Vec<Project>, utils::Never, String>;
     type Properties = ();
 
     fn create(_ctx: &yew::Context<Self>) -> Self {
@@ -81,9 +64,7 @@ impl yew::Component for ProjectList {
                     .await
                     {
                         Err(error) => {
-                            utils::Message::SetState(utils::FetchState::Error(
-                                error.to_string(),
-                            ))
+                            utils::Message::SetState(utils::FetchState::Error(error.to_string()))
                         }
                         Ok(response) => {
                             if response.status() != 200 {
@@ -102,11 +83,9 @@ impl yew::Component for ProjectList {
                             }
 
                             match response.json().await {
-                                Err(error) => {
-                                    utils::Message::SetState(utils::FetchState::Error(
-                                        error.to_string(),
-                                    ))
-                                }
+                                Err(error) => utils::Message::SetState(utils::FetchState::Error(
+                                    error.to_string(),
+                                )),
                                 Ok(projects) => utils::Message::SetContent(projects),
                             }
                         }
@@ -136,43 +115,27 @@ impl yew::Component for ProjectList {
             utils::FetchState::Complete => {
                 if self.projects.is_empty() {
                     return yew::html! {
-                        <>
-                            <Title title="Projects" />
-                            <p>{"Nothing to see here."}</p>
-                        </>
+                        <p>{"Nothing to see here."}</p>
                     };
                 }
 
                 let cards = self.projects.iter().map(|project| project.to_card());
 
                 yew::html! {
-                    <>
-                        <Title title="Projects" />
-                        <div class={yew::classes!("card-grid")}>
-                            { for cards }
-                        </div>
-                    </>
+                    <div class={yew::classes!("card-grid")}>
+                        { for cards }
+                    </div>
                 }
             }
             utils::FetchState::Error(error_message) => {
-                yew::html! {
-                    <>
-                        <Title title="Projects" />
-                        <p class={yew::classes!("status", "error")}>{error_message}</p>
-                    </>
-                }
+                yew::html!(<p class={yew::classes!("status", "error")}>{error_message}</p>)
             }
             utils::FetchState::Ongoing => {
-                yew::html! {
-                    <>
-                        <Title title="Projects" />
-                        <p class={yew::classes!("status")}>{"Fetching..."}</p>
-                    </>
-                }
+                yew::html!(<p class={yew::classes!("status")}>{"Fetching..."}</p>)
             }
             utils::FetchState::Pending => {
                 ctx.link().send_message(utils::Message::FetchData);
-                yew::html!( <Title title="Projects" /> )
+                yew::html!(<></>)
             }
             _ => unreachable!(), // FetchState::NotFound is never set as fetch_state
         }
@@ -180,5 +143,6 @@ impl yew::Component for ProjectList {
 }
 
 pub fn projects() -> yew::Html {
-    yew::html!( <ProjectList /> )
+    yew_hooks::use_title("Projects".to_string());
+    yew::html!(<ProjectList />)
 }

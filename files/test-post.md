@@ -1,30 +1,4 @@
-<UseTitle title="Test Post"/>
-
-# Test Post
-
-<br>
-
-## Code Block
-
-<br>
-
-```rs
-fn main() {
-    println!("Hello, World!")
-}
-```
-
-<br>
-
-## Math
-
-<br>
-
-${\displaystyle {\begin{aligned}\nabla \cdot \mathbf {E} \,\,\,&={\frac {\rho }{\varepsilon _{0}}}\\\nabla \cdot \mathbf {B} \,\,\,&=0\\\nabla \times \mathbf {E} &=-{\frac {\partial \mathbf {B} }{\partial t}}\\\nabla \times \mathbf {B} &=\mu _{0}\left(\mathbf {J} +\varepsilon _{0}{\frac {\partial \mathbf {E} }{\partial t}}\right)\end{aligned}}}$
-
-<br>
-
-this is a
-<UseLink link="/post/test-post.md" text="link to this post"/>
-and this is a
-<UseLink link="/post/test-post-two.md" text="link to its sequel"/>
+Test Post
+2026-05-02T17:46:13.518Z
+<internal-link to="/post/test-post.md">here</internal-link> is a link to this post
+and <internal-link to="/post/test-post-two.md">here</internal-link> is a link to its sequel

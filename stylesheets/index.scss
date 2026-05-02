@@ -14,7 +14,7 @@
 }
 
 html {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: "Noto Sans Mono", monospace;
 
     @include themed.themed(
         colors.$foreground,

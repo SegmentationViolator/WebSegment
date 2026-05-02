@@ -6,14 +6,17 @@ license = "AGPL-3.0-only"
 authors = ["SegmentationViolator <segmentationviolator@proton.me>"]
 
 [dependencies]
+gloo-timers = "0.4"
+html5gum = "0.8.3"
+pulldown-cmark = "0.13.3"
 reqwest = { version = "0.13", features = ["json"] }
 serde = { version = "1", features = ["derive"] }
-stylist = { version = "0.13", features = ["yew_integration"] }
-wasm-bindgen = "0.2.114"
-yew = { version = "0.21", features = ["csr"] }
-yew-hooks = "0.3"
-yew-router = "0.18"
-yew-markdown = { git = "https://github.com/rambip/rust-web-markdown.git" }
+serde_json = "1"
+stylist = { version = "0.15", features = ["yew_integration"] }
+wasm-bindgen = "0.2"
+yew = { version = "0.23", features = ["csr"] }
+yew-hooks = "0.6"
+yew-router = "0.20"
 
 [dependencies.web-sys]
 version = "0.3"

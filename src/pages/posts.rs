@@ -1,40 +1,23 @@
-// web segment - a personal website used to host some markdown files and my portfolio
-// Copyright (C) 2023  Segmentation Violator
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 use serde::Deserialize;
 
 use crate::card::Card;
-use crate::title::Title;
 use crate::utils;
 use crate::Route;
 
 #[derive(Deserialize)]
 struct Post {
     title: String,
-    date: String,
+    datetime: String,
     filename: String,
 }
 
 struct PostList {
     posts: Vec<Post>,
-    fetch_state: utils::FetchState,
+    fetch_state: utils::FetchState<reqwest::Error>,
 }
 
 impl yew::Component for PostList {
-    type Message = utils::Message<Vec<Post>, utils::Never>;
+    type Message = utils::Message<Vec<Post>, utils::Never, reqwest::Error>;
     type Properties = ();
 
     fn create(_ctx: &yew::Context<Self>) -> Self {
@@ -59,16 +42,10 @@ impl yew::Component for PostList {
                                 return utils::Message::SetContent(Vec::new());
                             }
 
-                            utils::Message::SetState(utils::FetchState::Error(
-                                error.to_string(),
-                            ))
+                            utils::Message::SetState(utils::FetchState::Error(error))
                         }
                         Ok(response) => match response.json().await {
-                            Err(error) => {
-                                utils::Message::SetState(utils::FetchState::Error(
-                                    error.to_string(),
-                                ))
-                            }
+                            Err(error) => utils::Message::SetState(utils::FetchState::Error(error)),
                             Ok(posts) => utils::Message::SetContent(posts),
                         },
                     }
@@ -96,10 +73,7 @@ impl yew::Component for PostList {
             utils::FetchState::Complete => {
                 if self.posts.is_empty() {
                     return yew::html! {
-                        <>
-                            <Title title="Posts" />
-                            <p>{"Nothing to see here."}</p>
-                        </>
+                        <p>{"Nothing to see here."}</p>
                     };
                 }
 
@@ -108,39 +82,30 @@ impl yew::Component for PostList {
                         <Card
                             title={post.title.clone()}
                             url={utils::Url::Internal(Route::Post { filename: post.filename.clone() })}
-                            subtext={post.date.clone()}
+                            subtext={utils::format_datetime(post.datetime.clone())}
                         />
                     )
                 });
 
                 yew::html! {
-                    <>
-                        <Title title="Posts" />
-                        <div class={yew::classes!("card-grid")}>
-                            { for cards }
-                        </div>
-                    </>
+                    <div class={yew::classes!("card-grid")}>
+                        { for cards }
+                    </div>
                 }
             }
-            utils::FetchState::Error(error_message) => {
+            utils::FetchState::Error(error) => {
                 yew::html! {
-                    <>
-                        <Title title="Posts" />
-                        <p class={yew::classes!("status", "error")}>{error_message}</p>
-                    </>
+                    <p class={yew::classes!("status", "error")}>{error.to_string()}</p>
                 }
             }
             utils::FetchState::Ongoing => {
                 yew::html! {
-                    <>
-                        <Title title="Posts" />
-                        <p class={yew::classes!("status")}>{"Fetching..."}</p>
-                    </>
+                    <p class={yew::classes!("status")}>{"Fetching..."}</p>
                 }
             }
             utils::FetchState::Pending => {
                 ctx.link().send_message(utils::Message::FetchData);
-                yew::html!( <Title title="Posts" /> )
+                yew::html!(<></>)
             }
             _ => unreachable!(), // FetchState::NotFound is never set as fetch_state
         }
@@ -148,5 +113,6 @@ impl yew::Component for PostList {
 }
 
 pub fn posts() -> yew::Html {
+    yew_hooks::use_title("Projects".to_string());
     yew::html!(<PostList />)
 }

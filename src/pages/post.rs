@@ -1,32 +1,23 @@
-// web segment - a personal website used to host some markdown files and my portfolio
-// Copyright (C) 2023  Segmentation Violator
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-use yew_markdown::Markdown;
-use yew_router::components::Link;
 use yew_router::components::Redirect;
-use yew_router::Routable;
 
 use crate::title::Title;
 use crate::utils;
 use crate::Route;
 
+mod markdown;
+
+const POST_DATA_FIELDS: usize = 3;
+
+struct Post {
+    title: String,
+    datetime: String,
+    body: String,
+}
+
 struct PostView {
-    body: Option<String>,
-    fetch_state: utils::FetchState,
+    fetch_state: utils::FetchState<reqwest::Error>,
     filename: String,
+    post: Option<Post>,
 }
 
 #[derive(PartialEq, yew::Properties)]
@@ -35,14 +26,14 @@ struct Props {
 }
 
 impl yew::Component for PostView {
-    type Message = utils::Message<String, String>;
+    type Message = utils::Message<Post, String, reqwest::Error>;
     type Properties = Props;
 
     fn create(ctx: &yew::Context<Self>) -> Self {
         Self {
-            body: None,
             fetch_state: utils::FetchState::Pending,
             filename: ctx.props().filename.clone(),
+            post: None,
         }
     }
 
@@ -54,7 +45,7 @@ impl yew::Component for PostView {
                 ctx.link().send_future(async move {
                     let base = web_sys::window().unwrap().location().origin().unwrap();
 
-                    let post = match reqwest::get(format!("{base}/files/{filename}"))
+                    let post_data = match reqwest::get(format!("{base}/files/{filename}"))
                         .await
                         .and_then(|response| response.error_for_status())
                     {
@@ -63,28 +54,34 @@ impl yew::Component for PostView {
                                 return utils::Message::SetState(utils::FetchState::NotFound);
                             }
 
-                            return utils::Message::SetState(utils::FetchState::Error(
-                                error.to_string(),
-                            ));
+                            return utils::Message::SetState(utils::FetchState::Error(error));
                         }
                         Ok(response) => match response.text().await {
                             Err(error) => {
-                                return utils::Message::SetState(utils::FetchState::Error(
-                                    error.to_string(),
-                                ))
+                                return utils::Message::SetState(utils::FetchState::Error(error))
                             }
                             Ok(text) => text,
                         },
                     };
 
-                    utils::Message::SetContent(post)
+                    let mut post_data = post_data.splitn(POST_DATA_FIELDS, '\n');
+
+                    let title = post_data.next().unwrap().to_string();
+                    let datetime = post_data.next().unwrap().to_string();
+                    let body = post_data.next().unwrap().to_string();
+
+                    utils::Message::SetContent(Post {
+                        title,
+                        datetime,
+                        body,
+                    })
                 });
 
                 self.fetch_state = utils::FetchState::Ongoing;
                 true
             }
             utils::Message::SetContent(post) => {
-                let _ = self.body.insert(post);
+                let _ = self.post.insert(post);
 
                 self.fetch_state = utils::FetchState::Complete;
                 true
@@ -112,39 +109,27 @@ impl yew::Component for PostView {
                     return yew::html!(<></>);
                 }
 
-                let body = self
-                    .body
-                    .clone()
+                let post = self
+                    .post
+                    .as_ref()
                     .expect("body shouldn't be None while fetch_state is Complete");
-
-                let mut components = yew_markdown::CustomComponents::new();
-
-                components.register("UseTitle", |props| {
-                    let title: String = props.get_parsed("title")?;
-                    Ok(yew::html!( <Title title={title} /> ))
-                });
-                components.register("UseLink", |props| {
-                    let link: String = props.get_parsed("link")?;
-                    let text: String = props.get_parsed("text")?;
-                    let Some(route) = Route::recognize(&link) else {
-                        return Err("invalid path".into());
-                    };
-
-                    Ok(yew::html!( <Link<Route> to={route}>{text}</Link<Route>> ))
-                });
+                let contents = markdown::parse(&post.body);
 
                 yew::html! {
-                    <div class={yew::classes!("post")}>
-                        <Markdown src={body} components={components}/>
-                    </div>
+                    <>
+                        <Title title={format!("Post | {}", post.title.clone())} />
+                        <div class={yew::classes!("post")}>
+                            { for contents }
+                        </div>
+                    </>
                 }
             }
             utils::FetchState::NotFound => yew::html!( <Redirect<Route> to={Route::NotFound} /> ),
-            utils::FetchState::Error(error_message) => {
-                yew::html!( <p class={yew::classes!("status", "error")}>{error_message}</p> )
+            utils::FetchState::Error(error) => {
+                yew::html!(<p class={yew::classes!("status", "error")}>{error.to_string()}</p>)
             }
             utils::FetchState::Ongoing => {
-                yew::html!( <p class={yew::classes!("status")}>{"Fetching..."}</p> )
+                yew::html!(<p class={yew::classes!("status")}>{"Fetching..."}</p>)
             }
             utils::FetchState::Pending => {
                 ctx.link().send_message(utils::Message::FetchData);

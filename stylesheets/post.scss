@@ -4,8 +4,6 @@
 @use "themed";
 
 .post {
-    white-space: pre-wrap;
-
     pre {
         background:  color.change($color: colors.$background, $blackness: 10%) !important;
 

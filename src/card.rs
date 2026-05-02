@@ -1,20 +1,7 @@
-// web segment - a personal website used to host some markdown files and my portfolio
-// Copyright (C) 2023 Segmentation Violator
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 use crate::utils;
+
+const BASE_DELAY: u32 = 900;
+const MAX_RETRIES: i32 = 3;
 
 #[derive(Clone, PartialEq, yew::Properties)]
 pub struct Props {
@@ -36,17 +23,37 @@ pub fn card(properties: &Props) -> yew::Html {
         .unwrap();
     let navigator = yew_router::hooks::use_navigator().unwrap();
 
+    let retry_count = yew_hooks::use_counter(0);
+
+    let on_error = {
+        let retry_count = retry_count.clone();
+
+        yew::Callback::from(move |_| {
+            if *retry_count < MAX_RETRIES {
+                let exponent = *retry_count as u32;
+                let delay = BASE_DELAY * 2_u32.pow(exponent);
+
+                let retry_count = retry_count.clone();
+
+                gloo_timers::callback::Timeout::new(delay, move || {
+                    retry_count.increase();
+                })
+                .forget();
+            }
+        })
+    };
+
     let inner = yew::html! {
         <>
             <div class={yew::classes!("card-head")}>
                 <h3>{&properties.title}</h3>
                 if let Some(subtext) = &properties.subtext {
-                    <small class={yew::classes!("card-subtext")}>{subtext.clone()}</small>
+                    <small class={yew::classes!("card-subtext")}>{subtext}</small>
                 }
             </div>
 
             if let Some(image_url) = &properties.image_url {
-                <img class={yew::classes!("card-image")} src={image_url.clone()}/>
+                <img class={yew::classes!("card-image")} src={format!("{}?retries={}", image_url, *retry_count)} onerror={on_error}/>
             }
         </>
     };
@@ -54,7 +61,6 @@ pub fn card(properties: &Props) -> yew::Html {
     match &properties.url {
         utils::Url::External(url) => {
             let url = url.clone();
-
             yew::html! {
                 <div onclick={move |_| { let _ = location.set_href(&url); } } class={yew::classes!("card", "hover-scale")}>
                     {inner}
