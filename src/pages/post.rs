@@ -14,10 +14,16 @@ struct Post {
     body: String,
 }
 
-struct PostView {
+struct InternalPostView {
     fetch_state: utils::FetchState<reqwest::Error>,
     filename: String,
     post: Option<Post>,
+}
+
+#[derive(PartialEq, yew::Properties)]
+struct InternalProps {
+    pub filename: String,
+    pub prefers_dark: bool,
 }
 
 #[derive(PartialEq, yew::Properties)]
@@ -25,9 +31,9 @@ struct Props {
     pub filename: String,
 }
 
-impl yew::Component for PostView {
+impl yew::Component for InternalPostView {
     type Message = utils::Message<Post, String, reqwest::Error>;
-    type Properties = Props;
+    type Properties = InternalProps;
 
     fn create(ctx: &yew::Context<Self>) -> Self {
         Self {
@@ -98,6 +104,8 @@ impl yew::Component for PostView {
     }
 
     fn view(&self, ctx: &yew::Context<Self>) -> yew::Html {
+        let prefers_dark = stylist::yew::use_media_query("(prefers-color-scheme: dark)");
+
         match &self.fetch_state {
             utils::FetchState::Complete => {
                 let filename = ctx.props().filename.clone();
@@ -113,7 +121,7 @@ impl yew::Component for PostView {
                     .post
                     .as_ref()
                     .expect("body shouldn't be None while fetch_state is Complete");
-                let contents = markdown::parse(&post.body);
+                let contents = markdown::parse(&post.body, ctx.props().prefers_dark);
 
                 yew::html! {
                     <>
@@ -137,6 +145,13 @@ impl yew::Component for PostView {
             }
         }
     }
+}
+
+#[stylist::yew::styled_component(PostView)]
+fn post_view(properties: &Props) -> yew::Html {
+    let prefers_dark = stylist::yew::use_media_query("(prefers-color-scheme: dark)");
+
+    yew::html!(<InternalPostView filename={properties.filename.clone()} {prefers_dark} />)
 }
 
 pub fn post(filename: String) -> yew::Html {

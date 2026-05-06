@@ -25,11 +25,12 @@ pub fn callout(properties: &Props) -> yew::Html {
     <div
         class={css!(
             r#"
+                align-items: center;
                 display: flex;
-                gap: 16px;
-                padding: 20px;
+                gap: 1em;
+                padding: 1.5em;
                 border: 1px ${border_color} solid;
-                border-radius: 18px;
+                border-radius: 1.25em;
                 background: ${background};
             "#,
             border_color = config::colors::PRIMARY,

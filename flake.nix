@@ -67,7 +67,7 @@
                     commonArgs
                     // {
                         inherit cargoArtifacts;
-                        trunkExtraBuildArgs = "--filehash=false";
+                        trunkExtraBuildArgs = "--filehash=false -minify=true";
                         wasm-bindgen-cli = pkgs.wasm-bindgen-cli_0_2_114;
                     }
                 );

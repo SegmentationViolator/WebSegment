@@ -6,7 +6,8 @@ use web_sys::js_sys;
 use crate::Route;
 
 // empty array to force the use of runtime's default locale
-static DATETIME_FORMAT_LOCALES: sync::LazyLock<js_sys::Array> = sync::LazyLock::new(js_sys::Array::new);
+static DATETIME_FORMAT_LOCALES: sync::LazyLock<js_sys::Array> =
+    sync::LazyLock::new(js_sys::Array::new);
 
 static DATETIME_FORMAT_OPTIONS: sync::LazyLock<js_sys::Object> = sync::LazyLock::new(|| {
     let options = js_sys::Intl::DateTimeFormatOptions::new();
@@ -47,7 +48,13 @@ pub fn format_datetime(datetime: String) -> String {
     }
 
     let date: &wasm_bindgen::JsValue = date.upcast();
-    let formatter = js_sys::Intl::DateTimeFormat::new(&DATETIME_FORMAT_LOCALES, &DATETIME_FORMAT_OPTIONS);
+    let formatter =
+        js_sys::Intl::DateTimeFormat::new(&DATETIME_FORMAT_LOCALES, &DATETIME_FORMAT_OPTIONS);
 
-    formatter.format().call(&wasm_bindgen::JsValue::NULL, (date,)).ok().and_then(|js_string| js_string.as_string()).unwrap()
+    formatter
+        .format()
+        .call(&wasm_bindgen::JsValue::NULL, (date,))
+        .ok()
+        .and_then(|js_string| js_string.as_string())
+        .unwrap()
 }
